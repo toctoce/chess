@@ -3,8 +3,10 @@
 ## 과제 목표
 1. 객체지향적 설계 
     - 3주차까지 과제를 진행하면서 점점 객체지향적인 설계에 익숙해지고 있다는 생각이 들었으며, 동시에 이 역량을 더 기르고 싶다는 생각도 들었다. 따라서 객체지향적 설계를 1번 목표로 삼았다.
-2. 배포
-   - 아직 배포를 해본 경험이 없으며, 프로젝트를 한다면 꼭 배포를 해서 온라인상에서 내가 구현한 프로그램에 접근해보고 싶었다. 따라서 배포를 2번 목표로 삼았다.
+2. 디자인 패턴
+   - 코드 리뷰를 하며 디자인 패턴에 대해서 감을 잡았다. 디자인 패턴 중 몇 가지를 직접 공부하고 적용해보고 싶었다. 따라서 디자인 패턴을 2번 목표로 삼았다.
+3. 배포
+   - 아직 배포를 해본 경험이 없으며, 프로젝트를 한다면 꼭 배포를 해서 온라인상에서 내가 구현한 프로그램에 접근해보고 싶었다. 따라서 배포를 3번 목표로 삼았다.
 ## 용어
 - 주기물 : 룩, 퀸을 묶어서 통칭
   - 킹과 주기물 1개로 체크메이트를 강제할 수 있다.
@@ -53,3 +55,52 @@
 ## 시퀀스 다이어그램
 ## 구현할 기능
 ## 프로젝트 구조
+추상팩토리패턴, 전략패턴, 상태패턴, 커맨드패턴을 적용할 것이다.
+```text
+chess
+├── controller
+│   └── ChessController.java          
+├── service
+│   └── GameService.java              
+└── domain
+    ├── board
+    │   ├── Board.java
+    │   └── Position.java
+    ├── piece
+    │   ├── Piece.java
+    │   ├── Color.java
+    │   └── impls
+    │       ├── King.java
+    │       ├── Queen.java
+    │       ├── Rook.java
+    │       ├── Bishop.java
+    │       ├── Knight.java
+    │       └── Pawn.java
+    ├── factory // 추상팩토리패턴
+    │   ├── PieceFactory.java
+    │   └── impls
+    │       ├── BlackPieceFactory.java
+    │       └── WhitePieceFactory.java
+    ├── strategy // 전략패턴
+    │   ├── MovementStrategy.java
+    │   └── impls
+    │       ├── KingMovement.java
+    │       ├── QueenMovement.java
+    │       ├── RookMovement.java
+    │       ├── BishopMovement.java
+    │       ├── KnightMovement.java
+    │       └── PawnMovement.java
+    ├── state // 상태패턴
+    │   ├── GameState.java
+    │   └── impls
+    │       ├── OngoingState.java
+    │       ├── CheckmateState.java
+    │       └── StalemateState.java
+    ├── command // 커맨트패턴
+    │   ├── MoveCommand.java
+    │   └── impls
+    │       └── BasicMoveCommand.java
+    └── rule
+        ├── CheckDetector.java
+        └── RuleValidator.java
+```
