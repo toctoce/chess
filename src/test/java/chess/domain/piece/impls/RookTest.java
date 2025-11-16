@@ -65,7 +65,7 @@ class RookTest {
     }
 
     @ParameterizedTest
-    @CsvSource(value = {"A1, B2", "E4, G6", "H8, A1", "A1, B3", "C1, F2"})
+    @CsvSource(value = {"A1, A1", "A1, B2", "E4, G6", "H8, A1", "A1, B3", "C1, F2"})
     @DisplayName("Rook의 규칙에 어긋나는 이동은 false를 반환한다")
     void invalid_non_straight_move_returns_false(String fromNotation, String toNotation) {
         Position from = Position.from(fromNotation);
