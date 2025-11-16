@@ -19,9 +19,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 class RookTest {
 
     private final Board emptyBoard = new Board();
-    private final Position a1 = Position.from("A1");
-    private final Position a2 = Position.from("A2");
-    private final Position b2 = Position.from("B2");
 
     @Nested
     @DisplayName("Rook 생성자 및 속성")
@@ -40,7 +37,6 @@ class RookTest {
         @Test
         @DisplayName("null Color로 생성 시 InvalidPieceCreationException을 던진다")
         void null_color_throws_exception() {
-            // Piece 생성자에서 null 체크 로직이 정상 작동하는지 검증
             assertThatThrownBy(() -> new Rook(null))
                     .isInstanceOf(PieceCreationException.class)
                     .hasMessageContaining(PIECE_INVALID_CREATION_ARGUMENTS.getMessage());
