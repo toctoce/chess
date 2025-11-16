@@ -8,7 +8,8 @@ public enum ErrorMessage {
     POSITION_INVALID_FILE("대수 기보 표기법의 첫 번째 글자는 A~H 이어야 합니다.: %s", true),
     POSITION_INVALID_RANK("대수 기보 표기법의 두 번째 글자는 1~8 이어야 합니다.: %s", true),
 
-    PIECE_INVALID_CREATION_ARGUMENTS("Piece 생성 인자는 null일 수 없습니다.");
+    PIECE_INVALID_CREATION_ARGUMENTS("Piece 생성 인자는 null일 수 없습니다."),
+    PIECE_NOT_FOUND("출발 위치에 폰이 존재하지 않습니다.");
 
 
     private final String message;
