@@ -19,11 +19,9 @@ class PositionTest {
         @ParameterizedTest
         @CsvSource(value = {"A1,0,0", "B2,1,1", "C3,2,2", "D4,3,3", "E5,4,4", "F6,5,5", "G7,6,6", "H8,7,7"})
         @DisplayName("정상적인 대수 기보 입력 시, 0-7 좌표로 정확히 변환되어 객체가 생성된다")
-        void valid_input(String algebraicNotation, int expectedX, int expectedY) {
-            // when
+        void validInput(String algebraicNotation, int expectedX, int expectedY) {
             Position position = Position.from(algebraicNotation);
 
-            // then
             assertThat(position.x()).isEqualTo(expectedX);
             assertThat(position.x()).isEqualTo(expectedY);
         }
@@ -32,7 +30,7 @@ class PositionTest {
         @NullAndEmptySource
         @ValueSource(strings = {"A11", "__", "a1", "I1", "11", "A0", "A9", "A 1"})
         @DisplayName("비정상적인 길이, 형식, 또는 범위 입력 시 InvalidPositionException이 발생한다")
-        void invalid_input(String algebraicNotation) {
+        void invalidInput(String algebraicNotation) {
             assertThatThrownBy(() -> Position.from(algebraicNotation))
                     .isInstanceOf(InvalidPositionException.class);
         }

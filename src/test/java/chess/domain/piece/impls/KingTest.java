@@ -27,7 +27,7 @@ class KingTest {
         @ParameterizedTest
         @EnumSource(names = {"WHITE", "BLACK"})
         @DisplayName("유효한 Color로 생성 시 성공하며, 색상과 타입이 올바르다")
-        void valid_creation_success(Color color) {
+        void validCreationSuccess(Color color) {
             King king = new King(color);
 
             assertThat(king.getColor()).isEqualTo(color);
@@ -36,7 +36,7 @@ class KingTest {
 
         @Test
         @DisplayName("null Color로 생성 시 PieceCreationException을 던진다")
-        void null_color_throws_exception() {
+        void nullColorThrowsException() {
             assertThatThrownBy(() -> new King(null))
                     .isInstanceOf(PieceCreationException.class)
                     .hasMessageContaining(PIECE_INVALID_CREATION_ARGUMENTS.getMessage());
@@ -46,7 +46,7 @@ class KingTest {
     @ParameterizedTest
     @CsvSource(value = {"WHITE, K", "BLACK, k"})
     @DisplayName("색상에 따라 정확한 심볼을 반환한다")
-    void color_returns_correct_symbol(Color color, String expectedSymbol) {
+    void colorReturnsCorrectSymbol(Color color, String expectedSymbol) {
         King king = new King(color);
         assertThat(king.getSymbol()).isEqualTo(expectedSymbol);
     }
@@ -54,7 +54,7 @@ class KingTest {
     @ParameterizedTest
     @CsvSource(value = {"D4, C3", "D4, C4", "D4, C5", "D4, D3", "D4, D5", "D4, E3", "D4, E4", "D4, E5"})
     @DisplayName("King의 규칙에 맞는 이동은 true를 반환한다")
-    void valid_move_returns_true(String fromNotation, String toNotation) {
+    void validMoveReturnsTrue(String fromNotation, String toNotation) {
         Position from = Position.from(fromNotation);
         Position to = Position.from(toNotation);
 
@@ -66,7 +66,7 @@ class KingTest {
     @ParameterizedTest
     @CsvSource(value = {"A1, A1", "D4, D6", "D4, A4", "B2, D4"})
     @DisplayName("King의 규칙에 어긋나는 이동은 false를 반환한다")
-    void invalid_move_returns_false(String fromNotation, String toNotation) {
+    void invalidMoveReturnsFalse(String fromNotation, String toNotation) {
         Position from = Position.from(fromNotation);
         Position to = Position.from(toNotation);
         King king = new King(Color.WHITE);

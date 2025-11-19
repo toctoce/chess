@@ -27,7 +27,7 @@ class RookTest {
         @ParameterizedTest
         @EnumSource(Color.class)
         @DisplayName("유효한 Color로 생성 시 성공하며, 색상과 타입이 올바르다")
-        void valid_creation_success(Color color) {
+        void validCreationSuccess(Color color) {
             Rook rook = new Rook(color);
 
             assertThat(rook.getColor()).isEqualTo(color);
@@ -36,7 +36,7 @@ class RookTest {
 
         @Test
         @DisplayName("null Color로 생성 시 PieceCreationException을 던진다")
-        void null_color_throws_exception() {
+        void nullColorThrowsException() {
             assertThatThrownBy(() -> new Rook(null))
                     .isInstanceOf(PieceCreationException.class)
                     .hasMessageContaining(PIECE_INVALID_CREATION_ARGUMENTS.getMessage());
@@ -46,7 +46,7 @@ class RookTest {
     @ParameterizedTest
     @CsvSource(value = {"WHITE, R", "BLACK, r"})
     @DisplayName("색상에 따라 정확한 심볼을 반환한다")
-    void color_returns_correct_symbol(Color color, String expectedSymbol) {
+    void colorReturnsCorrectSymbol(Color color, String expectedSymbol) {
         Rook rook = new Rook(color);
         assertThat(rook.getSymbol()).isEqualTo(expectedSymbol);
     }
@@ -54,7 +54,7 @@ class RookTest {
     @ParameterizedTest
     @CsvSource(value = {"A1, A8", "B4, B7", "H5, H1", "C1, H1", "D5, A5", "E3, B3"})
     @DisplayName("Rook의 규칙에 맞는 이동은 true를 반환한다")
-    void valid_straight_move_returns_true(String fromNotation, String toNotation) {
+    void validStraightMoveReturnsTrue(String fromNotation, String toNotation) {
         Position from = Position.from(fromNotation);
         Position to = Position.from(toNotation);
 
@@ -66,7 +66,7 @@ class RookTest {
     @ParameterizedTest
     @CsvSource(value = {"A1, A1", "A1, B2", "E4, G6", "H8, A1", "A1, B3", "C1, F2"})
     @DisplayName("Rook의 규칙에 어긋나는 이동은 false를 반환한다")
-    void invalid_non_straight_move_returns_false(String fromNotation, String toNotation) {
+    void invalidNonStraightMoveReturnsFalse(String fromNotation, String toNotation) {
         Position from = Position.from(fromNotation);
         Position to = Position.from(toNotation);
         Rook rook = new Rook(Color.WHITE);

@@ -12,7 +12,7 @@ class ColorTest {
 
     @Test
     @DisplayName("Color Enum은 WHITE, BLACK, NONE 세 가지 상수를 가진다")
-    void color_enum_has_three_constants() {
+    void colorEnumHasThreeConstants() {
         Color[] colors = Color.values();
         assertThat(colors).hasSize(2);
         assertThat(colors).containsExactlyInAnyOrder(Color.WHITE, Color.BLACK);
@@ -21,7 +21,7 @@ class ColorTest {
     @ParameterizedTest
     @EnumSource(Color.class)
     @DisplayName("opposite() 메서드는 반대 색상을 정확히 반환한다")
-    void opposite_returns_correct_color(Color color) {
+    void oppositeReturnsCorrectColor(Color color) {
         if (color == Color.WHITE) {
             assertThat(color.opposite()).isEqualTo(Color.BLACK);
         }

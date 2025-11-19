@@ -28,7 +28,7 @@ class PawnTest {
         @ParameterizedTest
         @EnumSource(Color.class)
         @DisplayName("유효한 Color로 생성 시 성공하며, 색상과 타입이 올바르다")
-        void valid_creation_success(Color color) {
+        void validCreationSuccess(Color color) {
             Pawn pawn = new Pawn(color);
 
             assertThat(pawn.getColor()).isEqualTo(color);
@@ -37,7 +37,7 @@ class PawnTest {
 
         @Test
         @DisplayName("null Color로 생성 시 PieceCreationException을 던진다")
-        void null_color_throws_exception() {
+        void nullColorThrowsException() {
             assertThatThrownBy(() -> new Pawn(null))
                     .isInstanceOf(PieceCreationException.class)
                     .hasMessageContaining(PIECE_INVALID_CREATION_ARGUMENTS.getMessage());
@@ -47,7 +47,7 @@ class PawnTest {
     @ParameterizedTest
     @CsvSource(value = {"WHITE, P", "BLACK, p"})
     @DisplayName("색상에 따라 정확한 심볼을 반환한다")
-    void color_returns_correct_symbol(Color color, String expectedSymbol) {
+    void colorReturnsCorrectSymbol(Color color, String expectedSymbol) {
         Pawn pawn = new Pawn(color);
         assertThat(pawn.getSymbol()).isEqualTo(expectedSymbol);
     }
@@ -55,7 +55,7 @@ class PawnTest {
     @ParameterizedTest
     @CsvSource(value = {"A2, A3", "B4, B5", "A2, A4"})
     @DisplayName("White Pawn의 규칙에 맞는 이동은 true를 반환한다")
-    void valid_white_move_returns_true(String fromNotation, String toNotation) {
+    void validWhiteMoveReturnsTrue(String fromNotation, String toNotation) {
         Position from = Position.from(fromNotation);
         Position to = Position.from(toNotation);
         Pawn pawn = new Pawn(Color.WHITE);
@@ -72,7 +72,7 @@ class PawnTest {
             "A2, B3", "A3, B4", "D5, E6", "D5, C6"
     })
     @DisplayName("White Pawn의 규칙에 어긋나는 이동은 false를 반환한다")
-    void invalid_white_move_returns_true(String fromNotation, String toNotation) {
+    void invalidWhiteMoveReturnsTrue(String fromNotation, String toNotation) {
         Position from = Position.from(fromNotation);
         Position to = Position.from(toNotation);
         Pawn pawn = new Pawn(Color.WHITE);
@@ -85,7 +85,7 @@ class PawnTest {
     @ParameterizedTest
     @CsvSource(value = {"A2, B3", "A3, B4", "D5, E6", "D5, C6"})
     @DisplayName("White Pawn의 공격 이동은 true를 반환한다")
-    void invalid_white_attack_move_returns_true(String fromNotation, String toNotation) {
+    void invalidWhiteAttackMoveReturnsTrue(String fromNotation, String toNotation) {
         Position from = Position.from(fromNotation);
         Position to = Position.from(toNotation);
         Pawn fromPawn = new Pawn(Color.WHITE);
@@ -99,7 +99,7 @@ class PawnTest {
     @ParameterizedTest
     @CsvSource(value = {"A7, A6", "B5, B4", "A7, A5"})
     @DisplayName("Black Pawn의 규칙에 맞는 이동은 true를 반환한다")
-    void valid_black_move_returns_true(String fromNotation, String toNotation) {
+    void validBlackMoveReturnsTrue(String fromNotation, String toNotation) {
         Position from = Position.from(fromNotation);
         Position to = Position.from(toNotation);
         Pawn pawn = new Pawn(Color.BLACK);
@@ -115,7 +115,7 @@ class PawnTest {
             "A7, B6", "A6, B5", "E5, D4", "E5, D4"
     })
     @DisplayName("Black Pawn의 규칙에 어긋나는 이동은 false를 반환한다")
-    void invalid_black_move_returns_true(String fromNotation, String toNotation) {
+    void invalidBlackMoveReturnsTrue(String fromNotation, String toNotation) {
         Position from = Position.from(fromNotation);
         Position to = Position.from(toNotation);
         Pawn pawn = new Pawn(Color.BLACK);
