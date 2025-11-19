@@ -58,7 +58,6 @@ public class Board {
             throw new PieceNotFoundException(PIECE_NOT_FOUND.getMessage());
         }
 
-        // todo: 만약 경로 방해나 고유 규칙 위반이 있다면, Board를 호출하기 전 Service/Validator 레벨에서 검증해야 함.
         pieces.remove(from);
         placePiece(piece, to);
     }
@@ -88,9 +87,9 @@ public class Board {
         int distance = Math.max(Math.abs(xDiff), Math.abs(yDiff));
 
         return IntStream.range(1, distance)
-                .mapToObj(index -> {
-                    int currentX = from.x() + (index * stepX);
-                    int currentY = from.y() + (index * stepY);
+                .mapToObj(i -> {
+                    int currentX = from.x() + (i * stepX);
+                    int currentY = from.y() + (i * stepY);
                     return Position.of(currentX, currentY);
                 })
                 .anyMatch(pieces::containsKey);
