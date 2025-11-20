@@ -7,6 +7,7 @@ import chess.domain.board.Position;
 import chess.domain.piece.Color;
 import chess.domain.piece.Piece;
 import chess.domain.piece.impls.King;
+import chess.domain.piece.impls.Knight;
 import chess.domain.piece.impls.Pawn;
 import chess.domain.piece.impls.Queen;
 import chess.domain.piece.impls.Rook;
@@ -18,94 +19,103 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class StalemateDetectorTest {
+class CheckmateDetectorTest {
 
     private final CheckDetector checkDetector = new CheckDetector();
     private final RuleValidator ruleValidator = new RuleValidator(checkDetector);
-    private final StalemateDetector stalemateDetector = new StalemateDetector(ruleValidator, checkDetector);
+    private final CheckmateDetector checkmateDetector = new CheckmateDetector(checkDetector, ruleValidator);
 
     @ParameterizedTest(name = "{0}")
-    @MethodSource("provideStalemateScenarios")
-    @DisplayName("다양한 기물 배치 상황에서 스테일메이트 여부를 정확히 판단한다")
-    void isStalemateReturnsCorrectResult(
+    @MethodSource("provideCheckmateScenarios")
+    @DisplayName("다양한 기물 배치 상황에서 체크메이트 여부를 정확히 판단한다")
+    void isCheckmateReturnsCorrectResult(
             String description,
             Board board,
             Color currentTurn,
             boolean expectedResult
     ) {
-        boolean actualResult = stalemateDetector.isStalemate(board, currentTurn);
+        boolean actualResult = checkmateDetector.isCheckmate(board, currentTurn);
 
         assertThat(actualResult).isEqualTo(expectedResult);
     }
 
-    static Stream<Arguments> provideStalemateScenarios() {
+    static Stream<Arguments> provideCheckmateScenarios() {
         return Stream.of(
                 Arguments.of(
-                        "킹이 구석에 갇히고 공격받지 않지만 이동할 곳이 없음",
+                        "킹이 공격받고 피할 곳이 없음",
+                        createBoard(
+                                "A1", new King(Color.WHITE),
+                                "A8", new Rook(Color.BLACK),
+                                "B1", new Pawn(Color.WHITE),
+                                "B2", new Pawn(Color.WHITE)
+                        ),
+                        Color.WHITE,
+                        true
+                ),
+                Arguments.of(
+                        "협공을 받아 피할 곳이 없음",
+                        createBoard(
+                                "H1", new King(Color.WHITE),
+                                "H8", new Rook(Color.BLACK),
+                                "A1", new Rook(Color.BLACK),
+                                "E3", new Knight(Color.BLACK)
+                        ),
+                        Color.WHITE,
+                        true
+                ),
+                Arguments.of(
+                        "체크가 아닌 상황은 체크메이트가 아님",
+                        createBoard(
+                                "A1", new King(Color.WHITE),
+                                "H8", new Rook(Color.BLACK)
+                        ),
+                        Color.WHITE,
+                        false
+                ),
+                Arguments.of(
+                        "스테일메이트 상황은 체크메이트가 아님",
                         createBoard(
                                 "H8", new King(Color.WHITE),
                                 "F7", new King(Color.BLACK),
                                 "G6", new Queen(Color.BLACK)
                         ),
                         Color.WHITE,
-                        true
-                ),
-                Arguments.of(
-                        "폰과 킹이 모두 막혀 움직일 수 없는 상황",
-                        createBoard(
-                                "H1", new King(Color.WHITE),
-                                "H2", new Pawn(Color.WHITE),
-                                "H3", new Pawn(Color.BLACK),
-                                "F2", new Queen(Color.BLACK)
-                        ),
-                        Color.WHITE,
-                        true
-                ),
-
-                Arguments.of(
-                        "체크 상황은 스테일메이트가 아님",
-                        createBoard(
-                                "A1", new King(Color.WHITE),
-                                "A8", new Rook(Color.BLACK),
-                                "B1", new Rook(Color.BLACK)
-                        ),
-                        Color.WHITE,
                         false
                 ),
                 Arguments.of(
-                        "체크메이트 상황은 스테일메이트가 아님",
-                        createBoard(
-                                "A1", new King(Color.WHITE),
-                                "A8", new Rook(Color.BLACK),
-                                "B8", new Rook(Color.BLACK)
-                        ),
-                        Color.WHITE,
-                        false
-                ),
-                Arguments.of(
-                        "킹이 갇혔고 다른 기물이 움직일 수 있음",
-                        createBoard(
-                                "A8", new King(Color.WHITE),
-                                "B6", new Queen(Color.BLACK),
-                                "A2", new Pawn(Color.WHITE)
-                        ),
-                        Color.WHITE,
-                        false
-                ),
-                Arguments.of(
-                        "킹이 피할 곳이 남아 있음 (일반적인 상황)",
+                        "킹이 피할 곳이 남아 있음",
                         createBoard(
                                 "E1", new King(Color.WHITE),
-                                "E8", new King(Color.BLACK)
+                                "E8", new Rook(Color.BLACK)
                         ),
                         Color.WHITE,
                         false
                 ),
                 Arguments.of(
-                        "아군 기물로 막힌 것이 아니라 잡을 수 있는 적 기물인 경우",
+                        "공격 경로를 아군 기물로 막을 수 있음",
+                        createBoard(
+                                "E1", new King(Color.WHITE),
+                                "E8", new Rook(Color.BLACK),
+                                "D5", new Rook(Color.WHITE)
+                        ),
+                        Color.WHITE,
+                        false
+                ),
+                Arguments.of(
+                        "공격하는 기물을 킹이 잡을 수 있음",
                         createBoard(
                                 "A1", new King(Color.WHITE),
-                                "B2", new Rook(Color.BLACK)
+                                "A2", new Rook(Color.BLACK)
+                        ),
+                        Color.WHITE,
+                        false
+                ),
+                Arguments.of(
+                        "공격하는 기물을 다른 기물로 잡을 수 있음",
+                        createBoard(
+                                "A1", new King(Color.WHITE),
+                                "A3", new Rook(Color.BLACK),
+                                "B3", new Rook(Color.WHITE)
                         ),
                         Color.WHITE,
                         false
