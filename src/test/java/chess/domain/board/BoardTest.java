@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import chess.common.exception.PieceNotFoundException;
 import chess.domain.piece.Color;
 import chess.domain.piece.Piece;
+import chess.domain.piece.Type;
 import chess.domain.piece.impls.Bishop;
 import chess.domain.piece.impls.King;
 import chess.domain.piece.impls.Knight;
@@ -15,6 +16,7 @@ import chess.domain.piece.impls.Pawn;
 import chess.domain.piece.impls.Queen;
 import chess.domain.piece.impls.Rook;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
@@ -302,5 +304,31 @@ class BoardTest {
             Board empty = new Board(new HashMap<>());
             assertThat(empty.getPiecesByTeam(Color.WHITE)).isEmpty();
         }
+    }
+
+    @Test
+    @DisplayName("특정 색상과 종류의 기물 위치를 모두 찾는다")
+    void findPositions_returns_all_matching_positions() {
+        // given: 초기화된 보드 (A2~H2에 흰색 폰 8개, E1에 흰색 킹 존재)
+
+        // when: 흰색 폰의 위치를 요청
+        List<Position> whitePawnPositions = board.findPositions(Color.WHITE, Type.PAWN);
+
+        // then: 8개의 위치가 반환되어야 함
+        assertThat(whitePawnPositions).hasSize(8);
+        assertThat(whitePawnPositions).contains(Position.from("A2"), Position.from("H2"));
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 기물을 찾으면 빈 리스트를 반환한다")
+    void findPositions_returns_empty_when_not_found() {
+        // when: 아직 승진하지 않았으므로 흰색 퀸은 E1(초기위치) 외에 없다고 가정하거나,
+        // 더 확실하게 '기물이 없는 보드'를 만들어서 테스트
+        Board emptyBoard = new Board(new HashMap<>());
+
+        List<Position> result = emptyBoard.findPositions(Color.WHITE, Type.QUEEN);
+
+        // then
+        assertThat(result).isEmpty();
     }
 }

@@ -8,8 +8,10 @@ import chess.domain.factory.impls.BlackPieceFactory;
 import chess.domain.factory.impls.WhitePieceFactory;
 import chess.domain.piece.Color;
 import chess.domain.piece.Piece;
+import chess.domain.piece.Type;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -116,5 +118,12 @@ public class Board {
         return pieces.entrySet().stream()
                 .filter(entry -> entry.getValue().getColor() == color)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    public List<Position> findPositions(Color color, Type type) {
+        return getPiecesByTeam(color).entrySet().stream()
+                .filter(entry -> entry.getValue().getType() == type)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 }
