@@ -141,7 +141,6 @@ class RuleValidatorTest {
 
         Map<Position, Piece> initialPieces = new HashMap<>();
         initialPieces.put(from, movingPiece);
-        when(board.getPieces()).thenReturn(initialPieces);
 
         when(checkDetector.isCheck(any(), eq(WHITE_COLOR))).thenReturn(false);
 
@@ -156,9 +155,8 @@ class RuleValidatorTest {
         when(movingPiece.getColor()).thenReturn(WHITE_COLOR);
         when(movingPiece.isMoveValid(any(), any(), any())).thenReturn(true);
 
-        Map<Position, Piece> initialPieces = new HashMap<>();
-        initialPieces.put(from, movingPiece);
-        when(board.getPieces()).thenReturn(initialPieces);
+        Board mockedVirtualBoard = mock(Board.class);
+        when(board.movePieceVirtually(any(), any())).thenReturn(mockedVirtualBoard);
 
         when(checkDetector.isCheck(any(Board.class), eq(WHITE_COLOR))).thenReturn(true);
 

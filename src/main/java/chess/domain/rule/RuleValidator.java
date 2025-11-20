@@ -16,8 +16,6 @@ import chess.domain.board.Position;
 import chess.domain.piece.Color;
 import chess.domain.piece.Piece;
 import chess.domain.piece.Type;
-import java.util.HashMap;
-import java.util.Map;
 
 public class RuleValidator {
 
@@ -62,11 +60,7 @@ public class RuleValidator {
     }
 
     private boolean isKingInCheckAfterMove(Position from, Position to, Board board, Color kingColor) {
-        Map<Position, Piece> copiedBoard = new HashMap<>(board.getPieces());
-        Board virtualBoard = new Board(copiedBoard);
-
-        virtualBoard.getPiece(from);
-        virtualBoard.movePiece(from, to);
+        Board virtualBoard = board.movePieceVirtually(from, to);
 
         return checkDetector.isCheck(virtualBoard, kingColor);
     }
