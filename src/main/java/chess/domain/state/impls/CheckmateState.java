@@ -1,12 +1,14 @@
 package chess.domain.state.impls;
 
 import static chess.common.message.ErrorMessage.GAME_ALREADY_FINISHED;
+import static chess.common.message.ErrorMessage.STATE_INVALID_WINNER_COLOR;
 
 import chess.common.exception.GameFinishedException;
 import chess.domain.board.Board;
 import chess.domain.board.Position;
 import chess.domain.piece.Color;
 import chess.domain.state.GameState;
+import chess.domain.state.GameStatus;
 
 public class CheckmateState implements GameState {
 
@@ -18,9 +20,7 @@ public class CheckmateState implements GameState {
 
     @Override
     public GameState move(Position from, Position to, Board board, Color turnColor) {
-        throw new GameFinishedException(
-                GAME_ALREADY_FINISHED.getMessage(String.format("%s승(체크메이트)", turnColor.name()))
-        );
+        throw new GameFinishedException(GAME_ALREADY_FINISHED.getMessage(status().getDescription()));
     }
 
     @Override
@@ -29,7 +29,13 @@ public class CheckmateState implements GameState {
     }
 
     @Override
-    public String status() {
-        return "CHECKMATE_WINNER_" + winnerColor.name();
+    public GameStatus status() {
+        if (winnerColor == Color.WHITE) {
+            return GameStatus.CHECKMATE_WHITE_WIN;
+        }
+        if (winnerColor == Color.BLACK) {
+            return GameStatus.CHECKMATE_BLACK_WIN;
+        }
+        throw new IllegalStateException(STATE_INVALID_WINNER_COLOR.getMessage());
     }
 }

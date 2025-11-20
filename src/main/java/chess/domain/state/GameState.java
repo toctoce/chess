@@ -10,5 +10,5 @@ public interface GameState {
 
     boolean isFinished();
 
-    String status();
+    GameStatus status();
 }
