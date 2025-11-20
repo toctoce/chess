@@ -18,72 +18,50 @@ public class PawnMovement implements MovementStrategy {
             throw new PieceNotFoundException(PIECE_NOT_FOUND.getMessage());
         }
 
-        Color selfColor = fromPiece.getColor();
-        Piece target = board.getPiece(to);
+        Color fromPieceColor = fromPiece.getColor();
+        Piece toPiece = board.getPiece(to);
 
         int dx = to.x() - from.x();
         int dy = to.y() - from.y();
 
-        if (isAttackMove(dx, dy, selfColor, target)) {
+        if (toPiece != null && toPiece.getColor().opposite() == fromPieceColor &&
+                isAttackMove(dx, dy, fromPieceColor)) {
             return true;
         }
 
-        if (isNotAttackMove(dx, dy, from, selfColor, target)) {
+        if (toPiece == null && isNotAttackMove(dx, dy, from, fromPieceColor)) {
             return true;
         }
 
         return false;
     }
 
-    private boolean isAttackMove(int dx, int dy, Color selfColor, Piece target) {
-        if (target == null || target.getColor() == selfColor) {
-            return false;
-        }
-
-        int direction = getPawnDirection(selfColor);
+    private boolean isAttackMove(int dx, int dy, Color color) {
+        int direction = color.getDirection();
         return Math.abs(dx) == 1 && dy == direction;
     }
 
-    private boolean isNotAttackMove(int dx, int dy, Position from, Color selfColor, Piece target) {
-        if (target != null) {
-            return false;
-        }
-
-        if (isOneStepMove(dx, dy, selfColor)) {
+    private boolean isNotAttackMove(int dx, int dy, Position from, Color color) {
+        if (isOneStepMove(dx, dy, color)) {
             return true;
         }
 
-        if (isTwoStepMove(dx, dy, from, selfColor)) {
-            // TODO: RuleValidator에서 중간 경로 비어있는지 검사 필요 (여기서는 규칙 패턴만 검사)
+        if (isTwoStepMove(dx, dy, from, color)) {
             return true;
         }
 
         return false;
     }
 
-    private boolean isOneStepMove(int dx, int dy, Color selfColor) {
-        int direction = getPawnDirection(selfColor);
+    private boolean isOneStepMove(int dx, int dy, Color color) {
+        int direction = color.getDirection();
         return dx == 0 && dy == direction;
     }
 
-    private boolean isTwoStepMove(int dx, int dy, Position from, Color selfColor) {
-        int startRank = getStartRank(selfColor);
-        int direction = getPawnDirection(selfColor);
+    private boolean isTwoStepMove(int dx, int dy, Position from, Color color) {
+        int startRank = color.getPawnStartRank();
+        int direction = color.getDirection();
 
         return dx == 0 && dy == 2 * direction && from.y() == startRank;
-    }
-
-    private static int getStartRank(Color color) {
-        if (color == Color.WHITE) {
-            return 1;
-        }
-        return 6;
-    }
-
-    private int getPawnDirection(Color color) {
-        if (color == Color.WHITE) {
-            return 1;
-        }
-        return -1;
     }
 }
