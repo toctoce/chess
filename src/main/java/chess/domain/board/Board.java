@@ -11,6 +11,7 @@ import chess.domain.piece.Piece;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Board {
@@ -23,6 +24,10 @@ public class Board {
 
     public Board() {
         this(new HashMap<>());
+    }
+
+    public Board(Board board) {
+        this(new HashMap<>(board.pieces));
     }
 
     public void initialize() {
@@ -62,6 +67,14 @@ public class Board {
         placePiece(piece, to);
     }
 
+    public Board movePieceVirtually(Position from, Position to) {
+        Board virtualBoard = new Board(this.pieces);
+
+        virtualBoard.movePiece(from, to);
+
+        return virtualBoard;
+    }
+
     private void placePiece(Piece piece, Position position) {
         pieces.put(position, piece);
     }
@@ -97,5 +110,11 @@ public class Board {
 
     public Map<Position, Piece> getPieces() {
         return Collections.unmodifiableMap(pieces);
+    }
+
+    public Map<Position, Piece> getPiecesByTeam(Color color) {
+        return pieces.entrySet().stream()
+                .filter(entry -> entry.getValue().getColor() == color)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

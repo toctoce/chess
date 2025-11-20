@@ -249,4 +249,58 @@ class BoardTest {
             assertThat(board.hasObstacleInPath(from, to)).isFalse();
         }
     }
+
+    @Nested
+    @DisplayName("getPieceByTeam 메서드 테스트")
+    class GetPieceByTeamTest {
+        private Board customBoard;
+        private Piece whiteRook;
+        private Piece blackPawn;
+        private final Position whiteRookPosition = Position.from("A1");
+        private final Position blackPqwnPosition = Position.from("H7");
+
+        @BeforeEach
+        void setupForAdditionalTests() {
+            // 테스트용 독립적인 보드 구성
+            Map<Position, Piece> pieces = new HashMap<>();
+            whiteRook = new Rook(Color.WHITE);
+            blackPawn = new Pawn(Color.BLACK);
+
+            pieces.put(whiteRookPosition, whiteRook);
+            pieces.put(blackPqwnPosition, blackPawn);
+
+            customBoard = new Board(pieces);
+        }
+
+        @Test
+        @DisplayName("백 기물들만 필터링하여 반환한다")
+        void getPiecesByTeam_filters_white_pieces() {
+            Map<Position, Piece> whitePieces = customBoard.getPiecesByTeam(Color.WHITE);
+
+            assertAll(
+                    () -> assertThat(whitePieces).hasSize(1),
+                    () -> assertThat(whitePieces).containsEntry(whiteRookPosition, whiteRook),
+                    () -> assertThat(whitePieces).doesNotContainKey(blackPqwnPosition)
+            );
+        }
+
+        @Test
+        @DisplayName("흑 기물들만 정확히 필터링하여 반환한다")
+        void getPiecesByTeam_filters_black_pieces() {
+            Map<Position, Piece> blackPieces = customBoard.getPiecesByTeam(Color.BLACK);
+
+            assertAll(
+                    () -> assertThat(blackPieces).hasSize(1),
+                    () -> assertThat(blackPieces).containsEntry(blackPqwnPosition, blackPawn),
+                    () -> assertThat(blackPieces).doesNotContainKey(whiteRookPosition)
+            );
+        }
+
+        @Test
+        @DisplayName("해당 색상의 기물이 없으면 빈 Map을 반환한다")
+        void getPiecesByTeam_returns_empty_if_no_pieces() {
+            Board empty = new Board(new HashMap<>());
+            assertThat(empty.getPiecesByTeam(Color.WHITE)).isEmpty();
+        }
+    }
 }
