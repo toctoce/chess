@@ -141,9 +141,8 @@ class RuleValidatorTest {
 
         Map<Position, Piece> initialPieces = new HashMap<>();
         initialPieces.put(from, movingPiece);
-        when(board.getPieces()).thenReturn(initialPieces);
 
-        when(checkDetector.isCheckmate(any(), eq(WHITE_COLOR))).thenReturn(false);
+        when(checkDetector.isCheck(any(), eq(WHITE_COLOR))).thenReturn(false);
 
         assertThatCode(() -> ruleValidator.validate(from, to, board, WHITE_COLOR))
                 .doesNotThrowAnyException();
@@ -156,11 +155,10 @@ class RuleValidatorTest {
         when(movingPiece.getColor()).thenReturn(WHITE_COLOR);
         when(movingPiece.isMoveValid(any(), any(), any())).thenReturn(true);
 
-        Map<Position, Piece> initialPieces = new HashMap<>();
-        initialPieces.put(from, movingPiece);
-        when(board.getPieces()).thenReturn(initialPieces);
+        Board mockedVirtualBoard = mock(Board.class);
+        when(board.movePieceVirtually(any(), any())).thenReturn(mockedVirtualBoard);
 
-        when(checkDetector.isCheckmate(any(Board.class), eq(WHITE_COLOR))).thenReturn(true);
+        when(checkDetector.isCheck(any(Board.class), eq(WHITE_COLOR))).thenReturn(true);
 
         assertThatThrownBy(() -> ruleValidator.validate(from, to, board, WHITE_COLOR))
                 .isInstanceOf(IllegalMoveException.class)

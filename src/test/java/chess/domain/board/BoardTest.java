@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import chess.common.exception.PieceNotFoundException;
 import chess.domain.piece.Color;
 import chess.domain.piece.Piece;
+import chess.domain.piece.Type;
 import chess.domain.piece.impls.Bishop;
 import chess.domain.piece.impls.King;
 import chess.domain.piece.impls.Knight;
@@ -15,6 +16,7 @@ import chess.domain.piece.impls.Pawn;
 import chess.domain.piece.impls.Queen;
 import chess.domain.piece.impls.Rook;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
@@ -248,5 +250,85 @@ class BoardTest {
 
             assertThat(board.hasObstacleInPath(from, to)).isFalse();
         }
+    }
+
+    @Nested
+    @DisplayName("getPieceByTeam 메서드 테스트")
+    class GetPieceByTeamTest {
+        private Board customBoard;
+        private Piece whiteRook;
+        private Piece blackPawn;
+        private final Position whiteRookPosition = Position.from("A1");
+        private final Position blackPqwnPosition = Position.from("H7");
+
+        @BeforeEach
+        void setupForAdditionalTests() {
+            // 테스트용 독립적인 보드 구성
+            Map<Position, Piece> pieces = new HashMap<>();
+            whiteRook = new Rook(Color.WHITE);
+            blackPawn = new Pawn(Color.BLACK);
+
+            pieces.put(whiteRookPosition, whiteRook);
+            pieces.put(blackPqwnPosition, blackPawn);
+
+            customBoard = new Board(pieces);
+        }
+
+        @Test
+        @DisplayName("백 기물들만 필터링하여 반환한다")
+        void getPiecesByTeam_filters_white_pieces() {
+            Map<Position, Piece> whitePieces = customBoard.getPiecesByTeam(Color.WHITE);
+
+            assertAll(
+                    () -> assertThat(whitePieces).hasSize(1),
+                    () -> assertThat(whitePieces).containsEntry(whiteRookPosition, whiteRook),
+                    () -> assertThat(whitePieces).doesNotContainKey(blackPqwnPosition)
+            );
+        }
+
+        @Test
+        @DisplayName("흑 기물들만 정확히 필터링하여 반환한다")
+        void getPiecesByTeam_filters_black_pieces() {
+            Map<Position, Piece> blackPieces = customBoard.getPiecesByTeam(Color.BLACK);
+
+            assertAll(
+                    () -> assertThat(blackPieces).hasSize(1),
+                    () -> assertThat(blackPieces).containsEntry(blackPqwnPosition, blackPawn),
+                    () -> assertThat(blackPieces).doesNotContainKey(whiteRookPosition)
+            );
+        }
+
+        @Test
+        @DisplayName("해당 색상의 기물이 없으면 빈 Map을 반환한다")
+        void getPiecesByTeam_returns_empty_if_no_pieces() {
+            Board empty = new Board(new HashMap<>());
+            assertThat(empty.getPiecesByTeam(Color.WHITE)).isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("특정 색상과 종류의 기물 위치를 모두 찾는다")
+    void findPositions_returns_all_matching_positions() {
+        // given: 초기화된 보드 (A2~H2에 흰색 폰 8개, E1에 흰색 킹 존재)
+
+        // when: 흰색 폰의 위치를 요청
+        List<Position> whitePawnPositions = board.findPositions(Color.WHITE, Type.PAWN);
+
+        // then: 8개의 위치가 반환되어야 함
+        assertThat(whitePawnPositions).hasSize(8);
+        assertThat(whitePawnPositions).contains(Position.from("A2"), Position.from("H2"));
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 기물을 찾으면 빈 리스트를 반환한다")
+    void findPositions_returns_empty_when_not_found() {
+        // when: 아직 승진하지 않았으므로 흰색 퀸은 E1(초기위치) 외에 없다고 가정하거나,
+        // 더 확실하게 '기물이 없는 보드'를 만들어서 테스트
+        Board emptyBoard = new Board(new HashMap<>());
+
+        List<Position> result = emptyBoard.findPositions(Color.WHITE, Type.QUEEN);
+
+        // then
+        assertThat(result).isEmpty();
     }
 }

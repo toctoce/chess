@@ -25,7 +25,7 @@ public class OngoingState implements GameState {
         board.movePiece(from, to);
 
         Color opponentColor = turnColor.opposite();
-        if (checkDetector.isCheckmate(board, opponentColor)) {
+        if (checkDetector.isCheck(board, opponentColor)) {
             return new CheckmateState(turnColor);
         }
 
