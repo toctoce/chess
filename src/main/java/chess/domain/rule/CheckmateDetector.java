@@ -5,27 +5,19 @@ import chess.domain.board.Position;
 import chess.domain.piece.Color;
 import chess.domain.piece.Piece;
 import chess.domain.piece.Type;
-import java.util.Map;
 
 public class CheckmateDetector {
 
     public boolean isCheckmate(Board board, Color kingColor) {
-        Position kingPosition = findKingPosition(board, kingColor);
+        Position kingPosition = board.findKingPosition(kingColor);
 
         if (kingPosition == null) {
             return false;
         }
 
         Color opposite = kingColor.opposite();
-
-        return board.getPieces().entrySet().stream()
-                .filter(entry -> entry.getValue().getColor() == opposite) // 상대 기물만 필터링
-                .anyMatch(entry -> {
-                    Position attackerPosition = entry.getKey();
-                    Piece attackerPiece = entry.getValue();
-
-                    return isAttackValid(attackerPosition, kingPosition, board, attackerPiece);
-                });
+        return board.getPiecesByTeam(opposite).entrySet().stream()
+                .anyMatch(entry -> isAttackValid(entry.getKey(), kingPosition, board, entry.getValue()));
     }
 
     private boolean isAttackValid(Position from, Position target, Board board, Piece attackerPiece) {
@@ -38,13 +30,5 @@ public class CheckmateDetector {
         }
 
         return true;
-    }
-
-    private Position findKingPosition(Board board, Color kingColor) {
-        return board.getPieces().entrySet().stream()
-                .filter(entry -> entry.getValue().getType() == Type.KING && entry.getValue().getColor() == kingColor)
-                .map(Map.Entry::getKey)
-                .findFirst()
-                .orElse(null);
     }
 }
