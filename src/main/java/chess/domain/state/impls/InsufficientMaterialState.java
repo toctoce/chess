@@ -9,7 +9,7 @@ import chess.domain.piece.Color;
 import chess.domain.state.GameState;
 import chess.domain.state.GameStatus;
 
-public class AgreementDrawState implements GameState {
+public class InsufficientMaterialState implements GameState {
 
     @Override
     public GameState move(Position from, Position to, Board board, Color turnColor) {
@@ -23,6 +23,6 @@ public class AgreementDrawState implements GameState {
 
     @Override
     public GameStatus status() {
-        return GameStatus.AGREEMENT_DRAW;
+        return GameStatus.INSUFFICIENT_MATERIAL_DRAW;
     }
 }
