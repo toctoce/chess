@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class CheckDetector {
 
-    public boolean isKingInCheck(Board board, Color kingColor) {
+    public boolean isCheckmate(Board board, Color kingColor) {
         Position kingPosition = findKingPosition(board, kingColor);
 
         if (kingPosition == null) {
