@@ -126,4 +126,10 @@ public class Board {
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
     }
+
+    public Position findKingPosition(Color color) {
+        return findPositions(color, Type.KING).stream()
+                .findFirst()
+                .orElse(null);
+    }
 }
