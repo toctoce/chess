@@ -8,8 +8,8 @@ import java.util.stream.IntStream;
 
 public class StalemateDetector {
 
-    private final RuleValidator ruleValidator; // CheckDetector 대신 RuleValidator 의존
-    private final CheckDetector checkDetector; // isStalemate의 첫 조건 확인용
+    private final RuleValidator ruleValidator;
+    private final CheckDetector checkDetector;
 
     public StalemateDetector(RuleValidator ruleValidator, CheckDetector checkDetector) {
         this.ruleValidator = ruleValidator;

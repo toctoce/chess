@@ -263,7 +263,6 @@ class BoardTest {
 
         @BeforeEach
         void setupForAdditionalTests() {
-            // 테스트용 독립적인 보드 구성
             Map<Position, Piece> pieces = new HashMap<>();
             whiteRook = new Rook(Color.WHITE);
             blackPawn = new Pawn(Color.BLACK);
@@ -276,7 +275,7 @@ class BoardTest {
 
         @Test
         @DisplayName("백 기물들만 필터링하여 반환한다")
-        void getPiecesByTeam_filters_white_pieces() {
+        void getPiecesByTeamFiltersWhitePieces() {
             Map<Position, Piece> whitePieces = customBoard.getPiecesByTeam(Color.WHITE);
 
             assertAll(
@@ -288,7 +287,7 @@ class BoardTest {
 
         @Test
         @DisplayName("흑 기물들만 정확히 필터링하여 반환한다")
-        void getPiecesByTeam_filters_black_pieces() {
+        void getPiecesByTeamFiltersBlackPieces() {
             Map<Position, Piece> blackPieces = customBoard.getPiecesByTeam(Color.BLACK);
 
             assertAll(
@@ -300,7 +299,7 @@ class BoardTest {
 
         @Test
         @DisplayName("해당 색상의 기물이 없으면 빈 Map을 반환한다")
-        void getPiecesByTeam_returns_empty_if_no_pieces() {
+        void getPiecesByTeamReturnsEmptyIfNoPieces() {
             Board empty = new Board(new HashMap<>());
             assertThat(empty.getPiecesByTeam(Color.WHITE)).isEmpty();
         }
@@ -308,27 +307,20 @@ class BoardTest {
 
     @Test
     @DisplayName("특정 색상과 종류의 기물 위치를 모두 찾는다")
-    void findPositions_returns_all_matching_positions() {
-        // given: 초기화된 보드 (A2~H2에 흰색 폰 8개, E1에 흰색 킹 존재)
-
-        // when: 흰색 폰의 위치를 요청
+    void findPositionsReturnsAllMatchingPositions() {
         List<Position> whitePawnPositions = board.findPositions(Color.WHITE, Type.PAWN);
 
-        // then: 8개의 위치가 반환되어야 함
         assertThat(whitePawnPositions).hasSize(8);
         assertThat(whitePawnPositions).contains(Position.from("A2"), Position.from("H2"));
     }
 
     @Test
     @DisplayName("존재하지 않는 기물을 찾으면 빈 리스트를 반환한다")
-    void findPositions_returns_empty_when_not_found() {
-        // when: 아직 승진하지 않았으므로 흰색 퀸은 E1(초기위치) 외에 없다고 가정하거나,
-        // 더 확실하게 '기물이 없는 보드'를 만들어서 테스트
+    void findPositionsReturnsEmptyWhenNotFound() {
         Board emptyBoard = new Board(new HashMap<>());
 
         List<Position> result = emptyBoard.findPositions(Color.WHITE, Type.QUEEN);
 
-        // then
         assertThat(result).isEmpty();
     }
 }
