@@ -3,7 +3,7 @@ package chess.domain.state.impls;
 import chess.domain.board.Board;
 import chess.domain.board.Position;
 import chess.domain.piece.Color;
-import chess.domain.rule.CheckmateDetector;
+import chess.domain.rule.CheckDetector;
 import chess.domain.rule.RuleValidator;
 import chess.domain.state.GameState;
 import chess.domain.state.GameStatus;
@@ -11,11 +11,11 @@ import chess.domain.state.GameStatus;
 public class OngoingState implements GameState {
 
     private final RuleValidator ruleValidator;
-    private final CheckmateDetector checkmateDetector;
+    private final CheckDetector checkDetector;
 
-    public OngoingState(RuleValidator ruleValidator, CheckmateDetector checkmateDetector) {
+    public OngoingState(RuleValidator ruleValidator, CheckDetector checkDetector) {
         this.ruleValidator = ruleValidator;
-        this.checkmateDetector = checkmateDetector;
+        this.checkDetector = checkDetector;
     }
 
     // todo: 스테일메이트 검사, 50수 검사, 3회반복 검사
@@ -25,7 +25,7 @@ public class OngoingState implements GameState {
         board.movePiece(from, to);
 
         Color opponentColor = turnColor.opposite();
-        if (checkmateDetector.isCheckmate(board, opponentColor)) {
+        if (checkDetector.isCheck(board, opponentColor)) {
             return new CheckmateState(turnColor);
         }
 

@@ -39,7 +39,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class RuleValidatorTest {
 
     @Mock
-    private CheckmateDetector checkmateDetector;
+    private CheckDetector checkDetector;
 
     @Mock
     private Board board;
@@ -143,7 +143,7 @@ class RuleValidatorTest {
         initialPieces.put(from, movingPiece);
         when(board.getPieces()).thenReturn(initialPieces);
 
-        when(checkmateDetector.isCheckmate(any(), eq(WHITE_COLOR))).thenReturn(false);
+        when(checkDetector.isCheck(any(), eq(WHITE_COLOR))).thenReturn(false);
 
         assertThatCode(() -> ruleValidator.validate(from, to, board, WHITE_COLOR))
                 .doesNotThrowAnyException();
@@ -160,7 +160,7 @@ class RuleValidatorTest {
         initialPieces.put(from, movingPiece);
         when(board.getPieces()).thenReturn(initialPieces);
 
-        when(checkmateDetector.isCheckmate(any(Board.class), eq(WHITE_COLOR))).thenReturn(true);
+        when(checkDetector.isCheck(any(Board.class), eq(WHITE_COLOR))).thenReturn(true);
 
         assertThatThrownBy(() -> ruleValidator.validate(from, to, board, WHITE_COLOR))
                 .isInstanceOf(IllegalMoveException.class)

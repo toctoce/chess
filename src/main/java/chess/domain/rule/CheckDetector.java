@@ -6,9 +6,9 @@ import chess.domain.piece.Color;
 import chess.domain.piece.Piece;
 import chess.domain.piece.Type;
 
-public class CheckmateDetector {
+public class CheckDetector {
 
-    public boolean isCheckmate(Board board, Color kingColor) {
+    public boolean isCheck(Board board, Color kingColor) {
         Position kingPosition = board.findKingPosition(kingColor);
 
         if (kingPosition == null) {

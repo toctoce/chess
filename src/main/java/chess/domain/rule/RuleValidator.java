@@ -21,10 +21,10 @@ import java.util.Map;
 
 public class RuleValidator {
 
-    private final CheckmateDetector checkmateDetector;
+    private final CheckDetector checkDetector;
 
-    public RuleValidator(CheckmateDetector checkmateDetector) {
-        this.checkmateDetector = checkmateDetector;
+    public RuleValidator(CheckDetector checkDetector) {
+        this.checkDetector = checkDetector;
     }
 
     // todo : 앙파상, 캐슬링 규칙 적용
@@ -68,6 +68,6 @@ public class RuleValidator {
         virtualBoard.getPiece(from);
         virtualBoard.movePiece(from, to);
 
-        return checkmateDetector.isCheckmate(virtualBoard, kingColor);
+        return checkDetector.isCheck(virtualBoard, kingColor);
     }
 }
