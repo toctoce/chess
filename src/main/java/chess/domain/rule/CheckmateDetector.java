@@ -7,7 +7,7 @@ import chess.domain.piece.Piece;
 import chess.domain.piece.Type;
 import java.util.Map;
 
-public class CheckDetector {
+public class CheckmateDetector {
 
     public boolean isCheckmate(Board board, Color kingColor) {
         Position kingPosition = findKingPosition(board, kingColor);
