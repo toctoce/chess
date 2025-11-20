@@ -68,6 +68,6 @@ public class RuleValidator {
         virtualBoard.getPiece(from);
         virtualBoard.movePiece(from, to);
 
-        return checkDetector.isKingInCheck(virtualBoard, kingColor);
+        return checkDetector.isCheckmate(virtualBoard, kingColor);
     }
 }

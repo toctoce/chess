@@ -143,7 +143,7 @@ class RuleValidatorTest {
         initialPieces.put(from, movingPiece);
         when(board.getPieces()).thenReturn(initialPieces);
 
-        when(checkDetector.isKingInCheck(any(), eq(WHITE_COLOR))).thenReturn(false);
+        when(checkDetector.isCheckmate(any(), eq(WHITE_COLOR))).thenReturn(false);
 
         assertThatCode(() -> ruleValidator.validate(from, to, board, WHITE_COLOR))
                 .doesNotThrowAnyException();
@@ -160,7 +160,7 @@ class RuleValidatorTest {
         initialPieces.put(from, movingPiece);
         when(board.getPieces()).thenReturn(initialPieces);
 
-        when(checkDetector.isKingInCheck(any(Board.class), eq(WHITE_COLOR))).thenReturn(true);
+        when(checkDetector.isCheckmate(any(Board.class), eq(WHITE_COLOR))).thenReturn(true);
 
         assertThatThrownBy(() -> ruleValidator.validate(from, to, board, WHITE_COLOR))
                 .isInstanceOf(IllegalMoveException.class)
