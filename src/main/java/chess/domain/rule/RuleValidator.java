@@ -59,6 +59,40 @@ public class RuleValidator {
         }
     }
 
+    public boolean isLegalMove(Position from, Position to, Board board, Color currentTurn) {
+        Piece piece = board.getPiece(from);
+
+        if (piece == null) {
+            return false;
+        }
+
+        if (piece.getColor() != currentTurn) {
+            return false;
+        }
+
+        if (from.equals(to)) {
+            return false;
+        }
+
+        Piece target = board.getPiece(to);
+        if (target != null && target.getColor() == piece.getColor()) {
+            return false;
+        }
+
+        if (!piece.isMoveValid(from, to, board)) {
+            return false;
+        }
+
+        if (piece.getType() != Type.KNIGHT && board.hasObstacleInPath(from, to)) {
+            return false;
+        }
+
+        if (isKingInCheckAfterMove(from, to, board, currentTurn)) {
+            return false;
+        }
+        return true;
+    }
+
     private boolean isKingInCheckAfterMove(Position from, Position to, Board board, Color kingColor) {
         Board virtualBoard = board.movePieceVirtually(from, to);
 
