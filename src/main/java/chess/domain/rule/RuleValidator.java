@@ -16,6 +16,7 @@ import chess.domain.board.Position;
 import chess.domain.piece.Color;
 import chess.domain.piece.Piece;
 import chess.domain.piece.Type;
+import java.util.stream.IntStream;
 
 public class RuleValidator {
 
@@ -97,5 +98,25 @@ public class RuleValidator {
         Board virtualBoard = board.movePieceVirtually(from, to);
 
         return checkDetector.isCheck(virtualBoard, kingColor);
+    }
+
+    public boolean anyPieceHasLegalMove(Board board, Color currentColor) {
+        return board.getPiecesByTeam(currentColor).entrySet().stream()
+                .anyMatch(entry -> {
+                    Position from = entry.getKey();
+
+                    return pieceHasLegalMove(from, board, currentColor);
+                });
+    }
+
+    private boolean pieceHasLegalMove(Position from, Board board, Color currentColor) {
+        return IntStream.rangeClosed(0, 7)
+                .anyMatch(x -> IntStream.rangeClosed(0, 7)
+                        .anyMatch(y -> {
+                            Position to = Position.of(x, y);
+
+                            return isLegalMove(from, to, board, currentColor);
+                        })
+                );
     }
 }
