@@ -1,7 +1,6 @@
 package chess.domain.state.impls;
 
 import static chess.common.message.ErrorMessage.GAME_ALREADY_FINISHED;
-import static chess.common.message.ErrorMessage.STATE_INVALID_WINNER_COLOR;
 
 import chess.common.exception.GameFinishedException;
 import chess.domain.board.Board;
@@ -33,9 +32,6 @@ public class CheckmateState implements GameState {
         if (winnerColor == Color.WHITE) {
             return GameStatus.CHECKMATE_WHITE_WIN;
         }
-        if (winnerColor == Color.BLACK) {
-            return GameStatus.CHECKMATE_BLACK_WIN;
-        }
-        throw new IllegalStateException(STATE_INVALID_WINNER_COLOR.getMessage());
+        return GameStatus.CHECKMATE_BLACK_WIN;
     }
 }
