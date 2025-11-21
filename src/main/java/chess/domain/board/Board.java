@@ -132,4 +132,9 @@ public class Board {
                 .findFirst()
                 .orElse(null);
     }
+
+    public void restore(Map<Position, Piece> snapshot) {
+        this.pieces.clear();
+        this.pieces.putAll(snapshot);
+    }
 }
