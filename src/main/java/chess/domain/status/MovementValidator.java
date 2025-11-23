@@ -1,4 +1,4 @@
-package chess.domain.rule;
+package chess.domain.status;
 
 import static chess.common.message.ErrorMessage.PIECE_NOT_FOUND;
 import static chess.common.message.ErrorMessage.RULE_FRIENDLY_FIRE;
@@ -18,11 +18,11 @@ import chess.domain.piece.Piece;
 import chess.domain.piece.Type;
 import java.util.stream.IntStream;
 
-public class RuleValidator {
+public class MovementValidator {
 
     private final CheckDetector checkDetector;
 
-    public RuleValidator(CheckDetector checkDetector) {
+    public MovementValidator(CheckDetector checkDetector) {
         this.checkDetector = checkDetector;
     }
 

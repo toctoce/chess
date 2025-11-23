@@ -1,4 +1,4 @@
-package chess.domain.state;
+package chess.domain.status;
 
 public enum GameStatus {
     ONGOING("진행 중"),
@@ -22,5 +22,9 @@ public enum GameStatus {
 
     public String getDescription() {
         return description;
+    }
+
+    public boolean isFinished() {
+        return this != ONGOING;
     }
 }

@@ -20,8 +20,9 @@ public enum ErrorMessage {
     RULE_KING_IN_CHECK_AFTER_MOVE("킹이 체크 상태가 되는 위치로는 이동할 수 없습니다."),
 
     GAME_ALREADY_FINISHED("게임이 이미 종료되었습니다: %s", true),
-    STATE_INVALID_WINNER_COLOR("승리자의 색상이 WHITE 또는 BLACK이 아닙니다.");
+    STATE_INVALID_WINNER_COLOR("승리자의 색상이 WHITE 또는 BLACK이 아닙니다."),
 
+    NO_HISTORY("기록이 없습니다.");
 
     private final String message;
     private final boolean isFormatted;
