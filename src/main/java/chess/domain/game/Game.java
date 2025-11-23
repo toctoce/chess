@@ -64,7 +64,7 @@ public class Game {
         boolean isFiftyMoveReset = (movedPiece.getType() == Type.PAWN || targetPiece != null);
         history.updateHistory(board, currentTurn, isFiftyMoveReset);
 
-        this.status = statusCalculator.calculateNextStatus(board, currentTurn, history);
+        this.status = statusCalculator.calculateNextStatus(this);
     }
 
     public void undo() {

@@ -1,8 +1,6 @@
 package chess.domain.status;
 
-import chess.domain.board.Board;
 import chess.domain.game.Game;
-import chess.domain.game.GameHistory;
 import chess.domain.piece.Color;
 
 public class StatusCalculator {
@@ -26,22 +24,19 @@ public class StatusCalculator {
     }
 
     public GameStatus calculateNextStatus(Game game) {
-        Board board = game.getBoard();
-        Color nextTurn = game.getCurrentTurn().opposite();
-        GameHistory history = game.getHistory();
-
-        if (checkmateDetector.isCheckmate(board, nextTurn)) {
+        if (checkmateDetector.isCheckmate(game)) {
+            Color nextTurn = game.getCurrentTurn().opposite();
             if (nextTurn == Color.WHITE) {
                 return GameStatus.CHECKMATE_BLACK_WIN;
             }
             return GameStatus.CHECKMATE_WHITE_WIN;
         }
 
-        if (stalemateDetector.isStalemate(board, nextTurn)) {
+        if (stalemateDetector.isStalemate(game)) {
             return GameStatus.STALEMATE_DRAW;
         }
 
-        if (fiftyMoveDetector.isFiftyMove(history)) {
+        if (fiftyMoveDetector.isFiftyMove(game)) {
             return GameStatus.FIFTY_MOVE_RULE_DRAW;
         }
 

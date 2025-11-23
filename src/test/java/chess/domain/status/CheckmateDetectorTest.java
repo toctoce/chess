@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import chess.domain.board.Board;
 import chess.domain.board.Position;
+import chess.domain.game.Game;
+import chess.domain.game.GameHistory;
 import chess.domain.piece.Color;
 import chess.domain.piece.Piece;
 import chess.domain.piece.impls.King;
@@ -34,7 +36,9 @@ class CheckmateDetectorTest {
             Color currentTurn,
             boolean expectedResult
     ) {
-        boolean actualResult = checkmateDetector.isCheckmate(board, currentTurn);
+        Game game = new Game(null, board, currentTurn, GameStatus.ONGOING, new GameHistory());
+
+        boolean actualResult = checkmateDetector.isCheckmate(game);
 
         assertThat(actualResult).isEqualTo(expectedResult);
     }

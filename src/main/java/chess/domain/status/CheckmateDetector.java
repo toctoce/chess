@@ -1,6 +1,7 @@
 package chess.domain.status;
 
 import chess.domain.board.Board;
+import chess.domain.game.Game;
 import chess.domain.piece.Color;
 
 public class CheckmateDetector {
@@ -13,8 +14,10 @@ public class CheckmateDetector {
         this.movementValidator = movementValidator;
     }
 
-    public boolean isCheckmate(Board board, Color currentColor) {
-        return checkDetector.isCheck(board, currentColor) && !movementValidator.anyPieceHasLegalMove(board,
-                currentColor);
+    public boolean isCheckmate(Game game) {
+        Board board = game.getBoard();
+        Color currentTurn = game.getCurrentTurn();
+        return checkDetector.isCheck(board, currentTurn) &&
+                !movementValidator.anyPieceHasLegalMove(board, currentTurn);
     }
 }

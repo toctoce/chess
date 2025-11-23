@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import chess.domain.board.Board;
 import chess.domain.board.Position;
+import chess.domain.game.Game;
+import chess.domain.game.GameHistory;
 import chess.domain.piece.Color;
 import chess.domain.piece.Piece;
 import chess.domain.piece.impls.King;
@@ -33,7 +35,9 @@ class StalemateDetectorTest {
             Color currentTurn,
             boolean expectedResult
     ) {
-        boolean actualResult = stalemateDetector.isStalemate(board, currentTurn);
+        Game game = new Game(null, board, currentTurn, GameStatus.ONGOING, new GameHistory());
+
+        boolean actualResult = stalemateDetector.isStalemate(game);
 
         assertThat(actualResult).isEqualTo(expectedResult);
     }
