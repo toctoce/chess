@@ -31,6 +31,14 @@ public abstract class Piece {
         return movementStrategy.isMoveValid(from, to, board);
     }
 
+    public boolean isMajor() {
+        return type.isMajor();
+    }
+
+    public boolean isMinor() {
+        return type.isMinor();
+    }
+
     public abstract String getSymbol();
 
     public Color getColor() {
