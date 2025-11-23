@@ -129,17 +129,18 @@ class BoardTest {
     }
 
     @Nested
-    @DisplayName("movePiece 메서드 테스트")
+    @DisplayName("move 메서드 테스트")
     class MovePieceTest {
 
         @Test
         @DisplayName("유효한 이동 시 기물은 출발 위치에서 제거되고 도착 위치에 배치된다")
-        void movePieceUpdatesPositions() {
+        void moveUpdatesPositions() {
             Piece rook = board.getPiece(a1);
 
-            board.movePiece(a1, a5);
+            board.move(a1, a5);
 
-            assertThat(board.getPiece(a5)).isEqualTo(rook);
+            assertThat(board.getPiece(a5).getType()).isEqualTo(Type.ROOK);
+            assertThat(board.getPiece(a5).isMoved()).isEqualTo(true);
             assertThat(board.getPiece(a1)).isNull();
             assertThat(board.getPieces()).hasSize(32);
         }
@@ -147,15 +148,15 @@ class BoardTest {
         @Test
         @DisplayName("출발 위치에 기물이 없으면 PieceNotFoundException을 던진다")
         void moveFromEmptyPositionThrowsException() {
-            assertThatThrownBy(() -> board.movePiece(c4, a2))
+            assertThatThrownBy(() -> board.move(c4, a2))
                     .isInstanceOf(PieceNotFoundException.class)
                     .hasMessageContaining(PIECE_NOT_FOUND.getMessage());
         }
 
         @Test
         @DisplayName("도착 위치에 기물이 있으면 덮어쓰며 기물을 잡는다 (Map 크기 감소)")
-        void movePieceCapturesTarget() {
-            board.movePiece(a1, a2);
+        void moveCapturesTarget() {
+            board.move(a1, a2);
 
             assertThat(board.getPieces()).hasSize(31);
             assertThat(board.getPiece(a2)).isInstanceOf(Rook.class);
@@ -322,5 +323,74 @@ class BoardTest {
         List<Position> result = emptyBoard.findPositions(Color.WHITE, Type.QUEEN);
 
         assertThat(result).isEmpty();
+    }
+
+    @Nested
+    @DisplayName("movePiece로 캐슬링 수행 시")
+    class MoveCastling {
+
+        @Test
+        @DisplayName("화이트 킹사이드 캐슬링 시 킹과 룩이 모두 이동한다")
+        void whiteKingSideCastling() {
+            Position kingFrom = Position.from("E1");
+            Position kingTo = Position.from("G1");
+            Position rookFrom = Position.from("H1");
+            Position rookTo = Position.from("F1");
+
+            Map<Position, Piece> pieces = new HashMap<>();
+            pieces.put(kingFrom, new King(Color.WHITE));
+            pieces.put(rookFrom, new Rook(Color.WHITE));
+            Board board = new Board(pieces);
+
+            board.move(kingFrom, kingTo);
+
+            assertAll(
+                    () -> assertThat(board.getPiece(kingFrom)).isNull(),
+                    () -> assertThat(board.getPiece(kingTo).getSymbol()).isEqualTo("K"),
+                    () -> assertThat(board.getPiece(rookFrom)).isNull(),
+                    () -> assertThat(board.getPiece(rookTo).getSymbol()).isEqualTo("R")
+            );
+        }
+
+        @Test
+        @DisplayName("블랙 퀸사이드 캐슬링 시 킹과 룩이 모두 이동한다")
+        void blackQueenSideCastling() {
+            Position kingFrom = Position.from("E8");
+            Position kingTo = Position.from("C8");
+            Position rookFrom = Position.from("A8");
+            Position rookTo = Position.from("D8");
+
+            Map<Position, Piece> pieces = new HashMap<>();
+            pieces.put(kingFrom, new King(Color.BLACK));
+            pieces.put(rookFrom, new Rook(Color.BLACK));
+            Board board = new Board(pieces);
+
+            board.move(kingFrom, kingTo);
+
+            assertAll(
+                    () -> assertThat(board.getPiece(kingFrom)).isNull(),
+                    () -> assertThat(board.getPiece(kingTo).getSymbol()).isEqualTo("k"),
+                    () -> assertThat(board.getPiece(rookFrom)).isNull(),
+                    () -> assertThat(board.getPiece(rookTo).getSymbol()).isEqualTo("r")
+            );
+        }
+
+        @Test
+        @DisplayName("캐슬링 후 기물들의 isFirstMove 상태는 false가 되어야 한다")
+        void castlingUpdatesPieceStatus() {
+            Position kingFrom = Position.from("E1");
+            Position kingTo = Position.from("G1");
+            Position rookFrom = Position.from("H1");
+
+            Board board = new Board(new HashMap<>() {{
+                put(kingFrom, new King(Color.WHITE));
+                put(rookFrom, new Rook(Color.WHITE));
+            }});
+
+            board.move(kingFrom, kingTo);
+
+            assertThat(board.getPiece(kingTo).isMoved()).isTrue();
+            assertThat(board.getPiece(Position.from("F1")).isMoved()).isTrue();
+        }
     }
 }

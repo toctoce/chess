@@ -61,33 +61,41 @@ public class Board {
 
     public void movePiece(Position from, Position to) {
         Piece piece = getPiece(from);
+
+        pieces.remove(from);
+        placePiece(piece.afterMove(), to);
+    }
+
+    public void move(Position from, Position to) {
+        Piece piece = getPiece(from);
         if (piece == null) {
             throw new PieceNotFoundException(PIECE_NOT_FOUND.getMessage());
         }
 
         if (piece.getType() == Type.KING && Math.abs(from.x() - to.x()) == 2) {
-            castling(from, to, piece);
+            castling(from, to);
             return;
         }
 
-        pieces.remove(from);
-        placePiece(piece, to);
+        movePiece(from, to);
     }
 
-    private void castling(Position kingFrom, Position kingTo, Piece king) {
-        int direction = (kingTo.x() - kingFrom.x()) > 0 ? 1 : -1;
+    private void castling(Position kingFrom, Position kingTo) {
+        int direction;
+        Position rookFrom, rookTo;
 
-        pieces.remove(kingFrom);
-        placePiece(king.afterMove(), kingTo);
+        if (kingTo.x() - kingFrom.x() > 0) {
+            direction = 1;
+            rookFrom = Position.of(7, kingFrom.y());
+            rookTo = Position.of(kingFrom.x() + direction, kingFrom.y());
+        } else {
+            direction = -1;
+            rookFrom = Position.of(0, kingFrom.y());
+            rookTo = Position.of(kingFrom.x() + direction, kingFrom.y());
+        }
 
-        // 2. 룩 이동 (킹을 넘어선 위치로)
-        int rookX = (direction == 1) ? 7 : 0; // 원래 룩 위치
-        Position rookFrom = Position.of(rookX, kingFrom.y());
-        Position rookTo = Position.of(kingFrom.x() + direction, kingFrom.y()); // 킹 바로 옆(안쪽)
-
-        Piece rook = pieces.remove(rookFrom);
-        // 룩도 이동했으므로 상태 변경
-        placePiece(rook.afterMove(), rookTo);
+        movePiece(kingFrom, kingTo);
+        movePiece(rookFrom, rookTo);
     }
 
     public Board movePieceVirtually(Position from, Position to) {

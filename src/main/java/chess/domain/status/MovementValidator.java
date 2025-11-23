@@ -51,11 +51,65 @@ public class MovementValidator {
             throw new RuleViolationException(RULE_INVALID_PIECE_MOVE.getMessage());
         }
 
+        if (isCastling(piece, from, to)) {
+            validateCastling(from, to, board, piece);
+        }
+
         if (piece.getType() != Type.KNIGHT && board.hasObstacleInPath(from, to)) {
             throw new RuleViolationException(RULE_PATH_BLOCKED.getMessage());
         }
 
         if (isKingInCheckAfterMove(from, to, board, currentTurn)) {
+            throw new IllegalMoveException(RULE_KING_IN_CHECK_AFTER_MOVE.getMessage());
+        }
+    }
+
+    private boolean isCastling(Piece piece, Position from, Position to) {
+        int dx = Math.abs(from.x() - to.x());
+        int dy = Math.abs(from.y() - to.y());
+        return piece.getType() == Type.KING && dx == 2 && dy == 0;
+    }
+
+    private void validateCastling(Position from, Position to, Board board, Piece king) {
+        if (king.isMoved()) {
+            throw new IllegalMoveException("이미 움직인 킹은 캐슬링할 수 없습니다.");
+        }
+
+        if (checkDetector.isCheck(board, king.getColor())) {
+            throw new IllegalMoveException("현재 체크 상태이므로 캐슬링할 수 없습니다.");
+        }
+
+        int direction;
+        Position rookPosition;
+        if (to.x() - from.x() > 0) {
+            direction = 1;
+            rookPosition = Position.of(7, from.y());
+        } else {
+            direction = -1;
+            rookPosition = Position.of(0, from.y());
+        }
+
+        Piece rook = board.getPiece(rookPosition);
+        if (rook == null || rook.getType() != Type.ROOK || rook.getColor() != king.getColor()) {
+            throw new IllegalMoveException("캐슬링할 수 있는 룩이 없습니다.");
+        }
+
+        if (rook.isMoved()) {
+            throw new IllegalMoveException("이미 움직인 룩과 캐슬링할 수 없습니다.");
+        }
+
+        if (board.hasObstacleInPath(from, rookPosition)) {
+            throw new IllegalMoveException("캐슬링 경로에 기물이 있어 이동할 수 없습니다.");
+        }
+
+        Position nextSquare = Position.of(from.x() + direction, from.y());
+        Color opponentColor = king.getColor().opposite();
+
+        if (checkDetector.isSquareAttacked(board, nextSquare, opponentColor)) {
+            throw new IllegalMoveException("이동 경로가 공격받고 있어 캐슬링할 수 없습니다.");
+        }
+
+        if (checkDetector.isSquareAttacked(board, to, opponentColor)) {
             throw new IllegalMoveException(RULE_KING_IN_CHECK_AFTER_MOVE.getMessage());
         }
     }
