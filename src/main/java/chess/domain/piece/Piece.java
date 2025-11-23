@@ -6,6 +6,7 @@ import chess.common.exception.PieceCreationException;
 import chess.domain.board.Board;
 import chess.domain.board.Position;
 import chess.domain.strategy.MovementStrategy;
+import java.util.Objects;
 
 public abstract class Piece {
 
@@ -47,5 +48,22 @@ public abstract class Piece {
 
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Piece piece = (Piece) o;
+        return color == piece.color && type == piece.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(color, type);
     }
 }
