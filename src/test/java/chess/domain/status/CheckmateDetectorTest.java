@@ -1,4 +1,4 @@
-package chess.domain.rule;
+package chess.domain.status;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

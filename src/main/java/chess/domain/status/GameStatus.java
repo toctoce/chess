@@ -1,4 +1,4 @@
-package chess.domain.rule;
+package chess.domain.status;
 
 public enum GameStatus {
     ONGOING("진행 중"),

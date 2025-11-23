@@ -1,30 +1,21 @@
-package chess.domain.rule;
+package chess.domain.status;
 
 import chess.domain.board.Board;
-import chess.domain.board.Position;
 import chess.domain.game.GameHistory;
 import chess.domain.piece.Color;
 
-public class ChessArbiter {
+public class StatusCalculator {
 
-    private final RuleValidator ruleValidator;
     private final CheckmateDetector checkmateDetector;
     private final StalemateDetector stalemateDetector;
-    // (아직 파일 트리에 없지만 필요한 디텍터들)
     // private final FiftyMoveRuleDetector fiftyMoveRuleDetector;
     // private final RepetitionDetector repetitionDetector;
     // private final InsufficientMaterialDetector insufficientMaterialDetector;
 
-    public ChessArbiter(RuleValidator ruleValidator,
-                        CheckmateDetector checkmateDetector,
-                        StalemateDetector stalemateDetector) {
-        this.ruleValidator = ruleValidator;
+    public StatusCalculator(CheckmateDetector checkmateDetector,
+                            StalemateDetector stalemateDetector) {
         this.checkmateDetector = checkmateDetector;
         this.stalemateDetector = stalemateDetector;
-    }
-
-    public void validateMove(Position from, Position to, Board board, Color turnColor) {
-        ruleValidator.validate(from, to, board, turnColor);
     }
 
     public GameStatus calculateNextStatus(Board board, Color nextTurn, GameHistory history) {

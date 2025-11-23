@@ -1,4 +1,4 @@
-package chess.domain.rule;
+package chess.domain.status;
 
 import static chess.common.message.ErrorMessage.PIECE_NOT_FOUND;
 import static chess.common.message.ErrorMessage.RULE_FRIENDLY_FIRE;
