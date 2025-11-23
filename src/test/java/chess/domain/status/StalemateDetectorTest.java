@@ -21,8 +21,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 class StalemateDetectorTest {
 
     private final CheckDetector checkDetector = new CheckDetector();
-    private final RuleValidator ruleValidator = new RuleValidator(checkDetector);
-    private final StalemateDetector stalemateDetector = new StalemateDetector(ruleValidator, checkDetector);
+    private final MovementValidator movementValidator = new MovementValidator(checkDetector);
+    private final StalemateDetector stalemateDetector = new StalemateDetector(movementValidator, checkDetector);
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("provideStalemateScenarios")

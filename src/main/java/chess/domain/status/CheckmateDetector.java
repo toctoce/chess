@@ -6,14 +6,15 @@ import chess.domain.piece.Color;
 public class CheckmateDetector {
 
     private final CheckDetector checkDetector;
-    private final RuleValidator ruleValidator;
+    private final MovementValidator movementValidator;
 
-    public CheckmateDetector(CheckDetector checkDetector, RuleValidator ruleValidator) {
+    public CheckmateDetector(CheckDetector checkDetector, MovementValidator movementValidator) {
         this.checkDetector = checkDetector;
-        this.ruleValidator = ruleValidator;
+        this.movementValidator = movementValidator;
     }
 
     public boolean isCheckmate(Board board, Color currentColor) {
-        return checkDetector.isCheck(board, currentColor) && !ruleValidator.anyPieceHasLegalMove(board, currentColor);
+        return checkDetector.isCheck(board, currentColor) && !movementValidator.anyPieceHasLegalMove(board,
+                currentColor);
     }
 }

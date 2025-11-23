@@ -35,8 +35,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("RuleValidator 테스트")
-class RuleValidatorTest {
+@DisplayName("MovementValidator 테스트")
+class MovementValidatorTest {
 
     @Mock
     private CheckDetector checkDetector;
@@ -45,7 +45,7 @@ class RuleValidatorTest {
     private Board board;
 
     @InjectMocks
-    private RuleValidator ruleValidator;
+    private MovementValidator movementValidator;
 
     private final Position from = Position.from("A1");
     private final Position to = Position.from("A2");
@@ -62,7 +62,7 @@ class RuleValidatorTest {
     void validatePieceNotFound() {
         when(board.getPiece(from)).thenReturn(null);
 
-        assertThatThrownBy(() -> ruleValidator.validate(from, to, board, WHITE_COLOR))
+        assertThatThrownBy(() -> movementValidator.validate(from, to, board, WHITE_COLOR))
                 .isInstanceOf(PieceNotFoundException.class)
                 .hasMessageContaining(PIECE_NOT_FOUND.getMessage());
     }
@@ -74,7 +74,7 @@ class RuleValidatorTest {
         when(board.getPiece(from)).thenReturn(movingPiece);
         when(movingPiece.getColor()).thenReturn(color);
 
-        assertThatThrownBy(() -> ruleValidator.validate(from, to, board, color.opposite()))
+        assertThatThrownBy(() -> movementValidator.validate(from, to, board, color.opposite()))
                 .isInstanceOf(RuleViolationException.class)
                 .hasMessageContaining(RULE_WRONG_TURN_PIECE.getMessage());
     }
@@ -85,7 +85,7 @@ class RuleValidatorTest {
         when(board.getPiece(from)).thenReturn(movingPiece);
         when(movingPiece.getColor()).thenReturn(WHITE_COLOR);
 
-        assertThatThrownBy(() -> ruleValidator.validate(from, from, board, WHITE_COLOR))
+        assertThatThrownBy(() -> movementValidator.validate(from, from, board, WHITE_COLOR))
                 .isInstanceOf(RuleViolationException.class)
                 .hasMessageContaining(RULE_SAME_POSITION_MOVE.getMessage());
     }
@@ -100,7 +100,7 @@ class RuleValidatorTest {
         when(board.getPiece(to)).thenReturn(targetPiece);
         when(targetPiece.getColor()).thenReturn(WHITE_COLOR);
 
-        assertThatThrownBy(() -> ruleValidator.validate(from, to, board, WHITE_COLOR))
+        assertThatThrownBy(() -> movementValidator.validate(from, to, board, WHITE_COLOR))
                 .isInstanceOf(RuleViolationException.class)
                 .hasMessageContaining(RULE_FRIENDLY_FIRE.getMessage());
     }
@@ -112,7 +112,7 @@ class RuleValidatorTest {
         when(movingPiece.getColor()).thenReturn(WHITE_COLOR);
         when(movingPiece.isMoveValid(any(), any(), any())).thenReturn(false);
 
-        assertThatThrownBy(() -> ruleValidator.validate(from, to, board, WHITE_COLOR))
+        assertThatThrownBy(() -> movementValidator.validate(from, to, board, WHITE_COLOR))
                 .isInstanceOf(RuleViolationException.class)
                 .hasMessageContaining(RULE_INVALID_PIECE_MOVE.getMessage());
     }
@@ -126,7 +126,7 @@ class RuleValidatorTest {
         when(movingPiece.isMoveValid(any(), any(), any())).thenReturn(true);
         when(board.hasObstacleInPath(any(), any())).thenReturn(true);
 
-        assertThatThrownBy(() -> ruleValidator.validate(from, to, board, WHITE_COLOR))
+        assertThatThrownBy(() -> movementValidator.validate(from, to, board, WHITE_COLOR))
                 .isInstanceOf(RuleViolationException.class)
                 .hasMessageContaining(RULE_PATH_BLOCKED.getMessage());
     }
@@ -144,7 +144,7 @@ class RuleValidatorTest {
 
         when(checkDetector.isCheck(any(), eq(WHITE_COLOR))).thenReturn(false);
 
-        assertThatCode(() -> ruleValidator.validate(from, to, board, WHITE_COLOR))
+        assertThatCode(() -> movementValidator.validate(from, to, board, WHITE_COLOR))
                 .doesNotThrowAnyException();
     }
 
@@ -160,7 +160,7 @@ class RuleValidatorTest {
 
         when(checkDetector.isCheck(any(Board.class), eq(WHITE_COLOR))).thenReturn(true);
 
-        assertThatThrownBy(() -> ruleValidator.validate(from, to, board, WHITE_COLOR))
+        assertThatThrownBy(() -> movementValidator.validate(from, to, board, WHITE_COLOR))
                 .isInstanceOf(IllegalMoveException.class)
                 .hasMessageContaining(RULE_KING_IN_CHECK_AFTER_MOVE.getMessage());
     }

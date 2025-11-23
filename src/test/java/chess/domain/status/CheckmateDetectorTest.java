@@ -22,8 +22,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 class CheckmateDetectorTest {
 
     private final CheckDetector checkDetector = new CheckDetector();
-    private final RuleValidator ruleValidator = new RuleValidator(checkDetector);
-    private final CheckmateDetector checkmateDetector = new CheckmateDetector(checkDetector, ruleValidator);
+    private final MovementValidator movementValidator = new MovementValidator(checkDetector);
+    private final CheckmateDetector checkmateDetector = new CheckmateDetector(checkDetector, movementValidator);
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("provideCheckmateScenarios")
