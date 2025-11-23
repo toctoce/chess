@@ -393,4 +393,65 @@ class BoardTest {
             assertThat(board.getPiece(Position.from("F1")).isMoved()).isTrue();
         }
     }
+
+    @Nested
+    @DisplayName("Pawn 앙파상 테스트")
+    class PawnEnPassantTest {
+
+        @Test
+        @DisplayName("앙파상 타겟 위치로 대각선 이동하면 true를 반환한다")
+        void enPassantMoveIsValid() {
+            Position whitePawnPosition = Position.from("A5");
+            Pawn whitePawn = new Pawn(Color.WHITE);
+
+            Position blackPawnFrom = Position.from("B7");
+            Position blackPawnTo = Position.from("B5");
+            Pawn blackPawn = new Pawn(Color.BLACK);
+
+            Map<Position, Piece> pieces = new HashMap<>();
+            pieces.put(whitePawnPosition, whitePawn);
+            pieces.put(blackPawnFrom, blackPawn);
+            Board board = new Board(pieces);
+
+            board.move(blackPawnFrom, blackPawnTo);
+
+            Position enPassantTarget = Position.from("B6");
+
+            assertThat(whitePawn.isMoveValid(whitePawnPosition, enPassantTarget, board)).isTrue();
+        }
+
+        @Test
+        @DisplayName("앙파상 타겟이 아닌 빈 칸으로 대각선 이동하면 false를 반환한다")
+        void invalidEnPassantMoveReturnsFalse() {
+            Position whitePawnPosition = Position.from("A5");
+            Pawn whitePawn = new Pawn(Color.WHITE);
+
+            Map<Position, Piece> pieces = new HashMap<>();
+            pieces.put(whitePawnPosition, whitePawn);
+            Board board = new Board(pieces);
+
+            Position invalidTarget = Position.from("B6");
+
+            assertThat(whitePawn.isMoveValid(whitePawnPosition, invalidTarget, board)).isFalse();
+        }
+
+        @Test
+        @DisplayName("앙파상 공격은 폰에게만 유효하다 (다른 기물은 불가)")
+        void enPassantIsOnlyForPawn() {
+            Position blackPawnFrom = Position.from("B7");
+            Position blackPawnTo = Position.from("B5");
+            Pawn blackPawn = new Pawn(Color.BLACK);
+
+            Map<Position, Piece> pieces = new HashMap<>();
+            pieces.put(blackPawnFrom, blackPawn);
+            Board board = new Board(pieces);
+
+            board.move(blackPawnFrom, blackPawnTo);
+
+            Position rookPosition = Position.from("A5");
+            Rook whiteRook = new Rook(Color.WHITE);
+
+            assertThat(whiteRook.isMoveValid(rookPosition, Position.from("B6"), board)).isFalse();
+        }
+    }
 }
