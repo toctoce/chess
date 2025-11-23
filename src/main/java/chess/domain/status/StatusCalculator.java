@@ -9,18 +9,20 @@ public class StatusCalculator {
     private final StalemateDetector stalemateDetector;
     private final FiftyMoveDetector fiftyMoveDetector;
     private final RepetitionDetector repetitionDetector;
-    // private final InsufficientMaterialDetector insufficientMaterialDetector;
+    private final InsufficientMaterialDetector insufficientMaterialDetector;
 
     public StatusCalculator(
             CheckmateDetector checkmateDetector,
             StalemateDetector stalemateDetector,
             FiftyMoveDetector fiftyMoveDetector,
-            RepetitionDetector repetitionDetector
+            RepetitionDetector repetitionDetector,
+            InsufficientMaterialDetector insufficientMaterialDetector
     ) {
         this.checkmateDetector = checkmateDetector;
         this.stalemateDetector = stalemateDetector;
         this.fiftyMoveDetector = fiftyMoveDetector;
         this.repetitionDetector = repetitionDetector;
+        this.insufficientMaterialDetector = insufficientMaterialDetector;
     }
 
     public GameStatus calculateNextStatus(Game game) {
@@ -44,9 +46,9 @@ public class StatusCalculator {
             return GameStatus.REPETITION_DRAW;
         }
 
-        // if (insufficientMaterialDetector.isInsufficient(board)) {
-        //     return GameStatus.INSUFFICIENT_MATERIAL_DRAW;
-        // }
+        if (insufficientMaterialDetector.isInsufficientMaterial(game)) {
+            return GameStatus.INSUFFICIENT_MATERIAL_DRAW;
+        }
 
         return GameStatus.ONGOING;
     }
