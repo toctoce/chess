@@ -1,5 +1,8 @@
 package chess.domain.game;
 
+import static chess.common.message.ErrorMessage.NO_HISTORY;
+
+import chess.common.exception.EmptyHistoryException;
 import chess.domain.board.Board;
 import chess.domain.piece.Color;
 import java.util.HashMap;
@@ -36,7 +39,7 @@ public class GameHistory {
 
     public BoardSnapshot undoHistory(Board board, Color turnColor) {
         if (boardStack.isEmpty()) {
-            return null;
+            throw new EmptyHistoryException(NO_HISTORY.getMessage());
         }
         this.fiftyMoveCount = fiftyMoveStack.pop();
 

@@ -1,9 +1,7 @@
 package chess.domain.game;
 
 import static chess.common.message.ErrorMessage.GAME_ALREADY_FINISHED;
-import static chess.common.message.ErrorMessage.NO_HISTORY;
 
-import chess.common.exception.EmptyHistoryException;
 import chess.common.exception.GameFinishedException;
 import chess.domain.board.Board;
 import chess.domain.board.Position;
@@ -64,15 +62,11 @@ public class Game {
         boolean isFiftyMoveReset = (movedPiece.getType() == Type.PAWN || targetPiece != null);
         history.updateHistory(board, currentTurn, isFiftyMoveReset);
 
-        this.status = statusCalculator.calculateNextStatus(board, currentTurn, history);
+        this.status = statusCalculator.calculateNextStatus(this);
     }
 
     public void undo() {
         BoardSnapshot previousBoard = history.undoHistory(board, currentTurn);
-
-        if (previousBoard == null) {
-            throw new EmptyHistoryException(NO_HISTORY.getMessage());
-        }
 
         board.restore(previousBoard.pieces());
         this.currentTurn = previousBoard.turn();
