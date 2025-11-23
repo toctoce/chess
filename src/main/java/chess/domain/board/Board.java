@@ -65,8 +65,29 @@ public class Board {
             throw new PieceNotFoundException(PIECE_NOT_FOUND.getMessage());
         }
 
+        if (piece.getType() == Type.KING && Math.abs(from.x() - to.x()) == 2) {
+            castling(from, to, piece);
+            return;
+        }
+
         pieces.remove(from);
         placePiece(piece, to);
+    }
+
+    private void castling(Position kingFrom, Position kingTo, Piece king) {
+        int direction = (kingTo.x() - kingFrom.x()) > 0 ? 1 : -1;
+
+        pieces.remove(kingFrom);
+        placePiece(king.afterMove(), kingTo);
+
+        // 2. 룩 이동 (킹을 넘어선 위치로)
+        int rookX = (direction == 1) ? 7 : 0; // 원래 룩 위치
+        Position rookFrom = Position.of(rookX, kingFrom.y());
+        Position rookTo = Position.of(kingFrom.x() + direction, kingFrom.y()); // 킹 바로 옆(안쪽)
+
+        Piece rook = pieces.remove(rookFrom);
+        // 룩도 이동했으므로 상태 변경
+        placePiece(rook.afterMove(), rookTo);
     }
 
     public Board movePieceVirtually(Position from, Position to) {

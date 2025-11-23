@@ -6,8 +6,18 @@ import chess.domain.piece.Type;
 import chess.domain.strategy.impls.KingMovement;
 
 public class King extends Piece {
+
     public King(Color color) {
         super(color, Type.KING, new KingMovement());
+    }
+
+    private King(Color color, boolean isMoved) {
+        super(color, Type.KING, new KingMovement(), isMoved);
+    }
+
+    @Override
+    public Piece afterMove() {
+        return new King(this.getColor(), true);
     }
 
     @Override

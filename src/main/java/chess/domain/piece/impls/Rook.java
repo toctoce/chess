@@ -6,8 +6,18 @@ import chess.domain.piece.Type;
 import chess.domain.strategy.impls.RookMovement;
 
 public class Rook extends Piece {
+
     public Rook(Color color) {
         super(color, Type.ROOK, new RookMovement());
+    }
+
+    private Rook(Color color, boolean isMoved) {
+        super(color, Type.ROOK, new RookMovement(), isMoved);
+    }
+
+    @Override
+    public Piece afterMove() {
+        return new Rook(this.getColor(), true);
     }
 
     @Override
