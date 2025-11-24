@@ -29,6 +29,9 @@ public class PawnMovement implements MovementStrategy {
             return true;
         }
 
+        if (toPiece == null && isEnPassantMove(to, board) && isAttackMove(dx, dy, fromPieceColor)) {
+            return true;
+        }
         if (toPiece == null && isNotAttackMove(dx, dy, from, fromPieceColor)) {
             return true;
         }
@@ -51,6 +54,11 @@ public class PawnMovement implements MovementStrategy {
         }
 
         return false;
+    }
+
+    private boolean isEnPassantMove(Position to, Board board) {
+        Position enPassantTarget = board.getEnPassantTarget();
+        return enPassantTarget != null && to.equals(enPassantTarget);
     }
 
     private boolean isOneStepMove(int dx, int dy, Color color) {

@@ -11,6 +11,9 @@ public class KingMovement implements MovementStrategy {
         int dx = Math.abs(from.x() - to.x());
         int dy = Math.abs(from.y() - to.y());
 
-        return dx <= 1 && dy <= 1 && !(dx == 0 && dy == 0);
+        boolean isOneStep = (dx <= 1 && dy <= 1) && !(dx == 0 && dy == 0);
+        boolean isCastling = (dx == 2 && dy == 0);
+
+        return isOneStep || isCastling;
     }
 }

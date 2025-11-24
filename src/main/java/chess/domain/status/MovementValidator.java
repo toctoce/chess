@@ -1,5 +1,11 @@
 package chess.domain.status;
 
+import static chess.common.message.ErrorMessage.CASTLING_IN_CHECK;
+import static chess.common.message.ErrorMessage.CASTLING_KING_MOVED;
+import static chess.common.message.ErrorMessage.CASTLING_PATH_ATTACKED;
+import static chess.common.message.ErrorMessage.CASTLING_PATH_BLOCKED;
+import static chess.common.message.ErrorMessage.CASTLING_ROOK_MOVED;
+import static chess.common.message.ErrorMessage.CASTLING_ROOK_NOT_FOUND;
 import static chess.common.message.ErrorMessage.PIECE_NOT_FOUND;
 import static chess.common.message.ErrorMessage.RULE_FRIENDLY_FIRE;
 import static chess.common.message.ErrorMessage.RULE_INVALID_PIECE_MOVE;
@@ -26,7 +32,6 @@ public class MovementValidator {
         this.checkDetector = checkDetector;
     }
 
-    // todo : 앙파상, 캐슬링 규칙 적용
     public void validate(Position from, Position to, Board board, Color currentTurn) {
         Piece piece = board.getPiece(from);
 
@@ -51,11 +56,65 @@ public class MovementValidator {
             throw new RuleViolationException(RULE_INVALID_PIECE_MOVE.getMessage());
         }
 
+        if (isCastling(piece, from, to)) {
+            validateCastling(from, to, board, piece);
+        }
+
         if (piece.getType() != Type.KNIGHT && board.hasObstacleInPath(from, to)) {
             throw new RuleViolationException(RULE_PATH_BLOCKED.getMessage());
         }
 
         if (isKingInCheckAfterMove(from, to, board, currentTurn)) {
+            throw new IllegalMoveException(RULE_KING_IN_CHECK_AFTER_MOVE.getMessage());
+        }
+    }
+
+    private boolean isCastling(Piece piece, Position from, Position to) {
+        int dx = Math.abs(from.x() - to.x());
+        int dy = Math.abs(from.y() - to.y());
+        return piece.getType() == Type.KING && dx == 2 && dy == 0;
+    }
+
+    private void validateCastling(Position from, Position to, Board board, Piece king) {
+        if (king.isMoved()) {
+            throw new IllegalMoveException(CASTLING_KING_MOVED.getMessage());
+        }
+
+        if (checkDetector.isCheck(board, king.getColor())) {
+            throw new IllegalMoveException(CASTLING_IN_CHECK.getMessage());
+        }
+
+        int direction;
+        Position rookPosition;
+        if (to.x() - from.x() > 0) {
+            direction = 1;
+            rookPosition = Position.of(7, from.y());
+        } else {
+            direction = -1;
+            rookPosition = Position.of(0, from.y());
+        }
+
+        Piece rook = board.getPiece(rookPosition);
+        if (rook == null || rook.getType() != Type.ROOK || rook.getColor() != king.getColor()) {
+            throw new IllegalMoveException(CASTLING_ROOK_NOT_FOUND.getMessage());
+        }
+
+        if (rook.isMoved()) {
+            throw new IllegalMoveException(CASTLING_ROOK_MOVED.getMessage());
+        }
+
+        if (board.hasObstacleInPath(from, rookPosition)) {
+            throw new IllegalMoveException(CASTLING_PATH_BLOCKED.getMessage());
+        }
+
+        Position nextSquare = Position.of(from.x() + direction, from.y());
+        Color opponentColor = king.getColor().opposite();
+
+        if (checkDetector.isSquareAttacked(board, nextSquare, opponentColor)) {
+            throw new IllegalMoveException(CASTLING_PATH_ATTACKED.getMessage());
+        }
+
+        if (checkDetector.isSquareAttacked(board, to, opponentColor)) {
             throw new IllegalMoveException(RULE_KING_IN_CHECK_AFTER_MOVE.getMessage());
         }
     }

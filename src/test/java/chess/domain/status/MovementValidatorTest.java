@@ -22,10 +22,13 @@ import chess.domain.board.Position;
 import chess.domain.piece.Color;
 import chess.domain.piece.Piece;
 import chess.domain.piece.Type;
+import chess.domain.piece.impls.King;
+import chess.domain.piece.impls.Rook;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,6 +36,8 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("MovementValidator 테스트")
@@ -163,5 +168,108 @@ class MovementValidatorTest {
         assertThatThrownBy(() -> movementValidator.validate(from, to, board, WHITE_COLOR))
                 .isInstanceOf(IllegalMoveException.class)
                 .hasMessageContaining(RULE_KING_IN_CHECK_AFTER_MOVE.getMessage());
+    }
+
+    @Nested
+    @DisplayName("캐슬링 유효성 검증")
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    class CastlingTest {
+
+        private final Position kingFrom = Position.from("E1");
+        private final Position kingTo = Position.from("G1");
+        private final Position rookPosition = Position.from("H1");
+        private final Position passThrough = Position.from("F1");
+
+        private Piece king;
+        private Piece rook;
+
+        @BeforeEach
+        void setUpCastling() {
+            king = mock(King.class);
+            rook = mock(Rook.class);
+
+            when(king.getColor()).thenReturn(WHITE_COLOR);
+            when(king.getType()).thenReturn(Type.KING);
+
+            when(king.isMoveValid(any(), any(), any())).thenReturn(true);
+
+            when(rook.getColor()).thenReturn(WHITE_COLOR);
+            when(rook.getType()).thenReturn(Type.ROOK);
+
+            when(board.getPiece(kingFrom)).thenReturn(king);
+            when(board.getPiece(rookPosition)).thenReturn(rook);
+        }
+
+        @Test
+        @DisplayName("모든 조건(첫 이동, 경로 안전, 체크 아님)을 만족하면 캐슬링이 가능하다")
+        void validateCastlingSuccess() {
+            when(king.isMoved()).thenReturn(false);
+            when(rook.isMoved()).thenReturn(false);
+
+            when(board.hasObstacleInPath(kingFrom, rookPosition)).thenReturn(false);
+            when(checkDetector.isCheck(board, WHITE_COLOR)).thenReturn(false);
+            when(checkDetector.isSquareAttacked(eq(board), eq(passThrough), any())).thenReturn(false);
+
+            assertThatCode(() -> movementValidator.validate(kingFrom, kingTo, board, WHITE_COLOR))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("킹이 이미 움직였으면 캐슬링 불가")
+        void failIfKingMoved() {
+            when(king.isMoved()).thenReturn(true);
+
+            assertThatThrownBy(() -> movementValidator.validate(kingFrom, kingTo, board, WHITE_COLOR))
+                    .isInstanceOf(IllegalMoveException.class);
+        }
+
+        @Test
+        @DisplayName("룩이 이미 움직였거나 해당 위치에 룩이 없으면 캐슬링 불가")
+        void failIfRookMovedOrMissing() {
+            when(king.isMoved()).thenReturn(true);
+            when(rook.isMoved()).thenReturn(true);
+
+            assertThatThrownBy(() -> movementValidator.validate(kingFrom, kingTo, board, WHITE_COLOR))
+                    .isInstanceOf(IllegalMoveException.class);
+        }
+
+        @Test
+        @DisplayName("킹과 룩 사이 경로에 장애물이 있으면 캐슬링 불가")
+        void failIfPathBlocked() {
+            when(king.isMoved()).thenReturn(false);
+            when(rook.isMoved()).thenReturn(false);
+
+            when(board.hasObstacleInPath(kingFrom, rookPosition)).thenReturn(true);
+
+            assertThatThrownBy(() -> movementValidator.validate(kingFrom, kingTo, board, WHITE_COLOR))
+                    .isInstanceOf(IllegalMoveException.class);
+        }
+
+        @Test
+        @DisplayName("현재 킹이 체크 상태이면 캐슬링 불가")
+        void failIfInCheck() {
+            when(king.isMoved()).thenReturn(false);
+            when(rook.isMoved()).thenReturn(false);
+
+            when(board.hasObstacleInPath(kingFrom, rookPosition)).thenReturn(false);
+            when(checkDetector.isCheck(board, WHITE_COLOR)).thenReturn(true);
+
+            assertThatThrownBy(() -> movementValidator.validate(kingFrom, kingTo, board, WHITE_COLOR))
+                    .isInstanceOf(IllegalMoveException.class);
+        }
+
+        @Test
+        @DisplayName("킹이 지나가는 경로(F1)가 공격받고 있으면 캐슬링 불가")
+        void failIfPassThroughAttacked() {
+            when(king.isMoved()).thenReturn(false);
+            when(rook.isMoved()).thenReturn(false);
+
+            when(board.hasObstacleInPath(kingFrom, rookPosition)).thenReturn(false);
+            when(checkDetector.isCheck(board, WHITE_COLOR)).thenReturn(false);
+            when(checkDetector.isSquareAttacked(eq(board), eq(passThrough), any())).thenReturn(true);
+
+            assertThatThrownBy(() -> movementValidator.validate(kingFrom, kingTo, board, WHITE_COLOR))
+                    .isInstanceOf(IllegalMoveException.class);
+        }
     }
 }

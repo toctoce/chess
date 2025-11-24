@@ -9,6 +9,7 @@ import chess.domain.factory.impls.WhitePieceFactory;
 import chess.domain.piece.Color;
 import chess.domain.piece.Piece;
 import chess.domain.piece.Type;
+import chess.domain.piece.impls.Queen;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -19,9 +20,11 @@ import java.util.stream.IntStream;
 public class Board {
 
     private final Map<Position, Piece> pieces;
+    private Position enPassantTarget;
 
     public Board(Map<Position, Piece> initialPieces) {
         this.pieces = new HashMap<>(initialPieces);
+        enPassantTarget = null;
     }
 
     public Board() {
@@ -29,7 +32,8 @@ public class Board {
     }
 
     public Board(Board board) {
-        this(new HashMap<>(board.pieces));
+        this.pieces = new HashMap<>(board.pieces);
+        this.enPassantTarget = board.enPassantTarget;
     }
 
     public void initialize() {
@@ -61,12 +65,88 @@ public class Board {
 
     public void movePiece(Position from, Position to) {
         Piece piece = getPiece(from);
+
+        removePiece(from);
+        placePiece(piece.afterMove(), to);
+    }
+
+    public void move(Position from, Position to) {
+        Piece piece = getPiece(from);
         if (piece == null) {
             throw new PieceNotFoundException(PIECE_NOT_FOUND.getMessage());
         }
 
-        pieces.remove(from);
-        placePiece(piece, to);
+        if (isCastling(from, to, piece)) {
+            castling(from, to);
+            return;
+        }
+
+        if (isEnPassant(to, piece)) {
+            enPassant(from, to);
+            return;
+        }
+
+        movePiece(from, to);
+
+        updateEnPassantTarget(piece, from, to);
+
+        if (isPromotion(to, piece)) {
+            promotion(to, piece.getColor());
+        }
+    }
+
+    private boolean isCastling(Position from, Position to, Piece piece) {
+        return piece.getType() == Type.KING && Math.abs(from.x() - to.x()) == 2;
+    }
+
+    private void castling(Position kingFrom, Position kingTo) {
+        int direction;
+        Position rookFrom, rookTo;
+
+        if (kingTo.x() - kingFrom.x() > 0) {
+            direction = 1;
+            rookFrom = Position.of(7, kingFrom.y());
+            rookTo = Position.of(kingFrom.x() + direction, kingFrom.y());
+        } else {
+            direction = -1;
+            rookFrom = Position.of(0, kingFrom.y());
+            rookTo = Position.of(kingFrom.x() + direction, kingFrom.y());
+        }
+
+        movePiece(kingFrom, kingTo);
+        movePiece(rookFrom, rookTo);
+    }
+
+    private boolean isEnPassant(Position to, Piece piece) {
+        return piece.getType() == Type.PAWN && to.equals(enPassantTarget);
+    }
+
+    private void enPassant(Position from, Position to) {
+        movePiece(from, to);
+
+        Position capturedPawnPos = Position.of(to.x(), from.y());
+        removePiece(capturedPawnPos);
+    }
+
+    private void updateEnPassantTarget(Piece piece, Position from, Position to) {
+        if (piece.getType() == Type.PAWN && Math.abs(from.y() - to.y()) == 2) {
+            int middleY = (from.y() + to.y()) / 2;
+            this.enPassantTarget = Position.of(from.x(), middleY);
+            return;
+        }
+        this.enPassantTarget = null;
+    }
+
+    private boolean isPromotion(Position to, Piece piece) {
+        if (piece.getType() == Type.PAWN && piece.getColor().getPawnPromotionRank() == to.y()) {
+            return true;
+        }
+        return false;
+    }
+
+    private void promotion(Position to, Color color) {
+        removePiece(to);
+        pieces.put(to, new Queen(color, true));
     }
 
     public Board movePieceVirtually(Position from, Position to) {
@@ -79,6 +159,10 @@ public class Board {
 
     private void placePiece(Piece piece, Position position) {
         pieces.put(position, piece);
+    }
+
+    private void removePiece(Position position) {
+        pieces.remove(position);
     }
 
     public Piece getPiece(Position position) {
@@ -110,16 +194,6 @@ public class Board {
                 .anyMatch(pieces::containsKey);
     }
 
-    public Map<Position, Piece> getPieces() {
-        return Collections.unmodifiableMap(pieces);
-    }
-
-    public Map<Position, Piece> getPiecesByTeam(Color color) {
-        return pieces.entrySet().stream()
-                .filter(entry -> entry.getValue().getColor() == color)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
     public List<Position> findPositions(Color color, Type type) {
         return getPiecesByTeam(color).entrySet().stream()
                 .filter(entry -> entry.getValue().getType() == type)
@@ -136,5 +210,19 @@ public class Board {
     public void restore(Map<Position, Piece> snapshot) {
         this.pieces.clear();
         this.pieces.putAll(snapshot);
+    }
+
+    public Map<Position, Piece> getPieces() {
+        return Collections.unmodifiableMap(pieces);
+    }
+
+    public Map<Position, Piece> getPiecesByTeam(Color color) {
+        return pieces.entrySet().stream()
+                .filter(entry -> entry.getValue().getColor() == color)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    public Position getEnPassantTarget() {
+        return enPassantTarget;
     }
 }
