@@ -1,24 +1,57 @@
 const API_BASE = "/games";
 let selectedTile = null; // 선택된 타일 ID (예: "A2")
+let pollingInterval = null; // [수정 1] 폴링 인터벌 변수 선언
 
 const PIECE_MAP = {
     'K': '♔', 'Q': '♕', 'R': '♖', 'B': '♗', 'N': '♘', 'P': '♙',
     'k': '♚', 'q': '♛', 'r': '♜', 'b': '♝', 'n': '♞', 'p': '♟'
 };
 
+// 서버 에러 메시지 추출 헬퍼 함수
+async function getErrorMessage(response) {
+    try {
+        const errorData = await response.json();
+        return errorData.message || `알 수 없는 오류 (${response.status})`;
+    } catch (e) {
+        return `서버 통신 오류 (${response.status} ${response.statusText})`;
+    }
+}
+
 // 1. 게임 시작
 async function startGame() {
     try {
         const response = await fetch(API_BASE, {method: 'POST'});
-        if (!response.ok) throw new Error("게임 시작 실패");
+
+        if (!response.ok) {
+            throw new Error(await getErrorMessage(response));
+        }
 
         const gameData = await response.json();
         initBoard();
         renderGame(gameData);
         document.getElementById('undo-btn').disabled = false;
+
+        startPolling(gameData.gameId);
     } catch (e) {
         alert(e.message);
     }
+}
+
+// [신규] 1초마다 서버 상태 확인 (Polling)
+function startPolling(gameId) {
+    if (pollingInterval) clearInterval(pollingInterval);
+
+    pollingInterval = setInterval(async () => {
+        try {
+            const response = await fetch(`${API_BASE}/${gameId}`);
+            if (response.ok) {
+                const gameData = await response.json();
+                renderGame(gameData);
+            }
+        } catch (e) {
+            console.error("Polling error:", e);
+        }
+    }, 1000);
 }
 
 // 2. 화면 렌더링
@@ -29,10 +62,8 @@ function renderGame(data) {
 
     const boardMap = data.board;
 
-    // 보드 초기화 (기물 비우기)
     document.querySelectorAll('.tile').forEach(tile => tile.innerText = '');
 
-    // 기물 배치
     for (const [position, pieceSymbol] of Object.entries(boardMap)) {
         const tile = document.getElementById(position);
         if (tile) {
@@ -41,66 +72,42 @@ function renderGame(data) {
     }
 }
 
-// 3. 타일 클릭 핸들러 (핵심 로직 수정)
+// 3. 타일 클릭 핸들러
 async function handleTileClick(position) {
     const gameId = document.getElementById('game-id').value;
     if (!gameId) return alert("게임을 먼저 시작하세요.");
 
     const tile = document.getElementById(position);
 
-    // [Case 1] 첫 번째 클릭 (기물 선택)
     if (!selectedTile) {
-        // 빈 땅을 클릭하면 무시
-        if (tile.innerText === '') {
-            return;
-        }
+        if (tile.innerText === '') return;
         selectTile(position);
         return;
     }
 
-    // [Case 2] 두 번째 클릭 (이동 또는 취소)
-
-    // 2-1. 같은 곳을 다시 클릭 -> 선택 취소
     if (selectedTile === position) {
         clearSelection();
         return;
     }
 
-    // 2-2. 다른 기물(아군)을 클릭 -> 선택 변경 (선택적 UX)
-    // (현재 로직에서는 이동 시도로 처리되어 'RuleViolation'이 뜨겠지만, UX 개선을 위해 추가 가능)
-
-    // 2-3. 이동 요청
-    const from = selectedTile;
-    const to = position;
-
-    // 이동 시도
-    await movePiece(gameId, from, to);
-
-    // [중요] 이동 시도 후에는 성공하든 실패하든 선택 상태를 반드시 해제해야 함!
+    await movePiece(gameId, selectedTile, position);
     clearSelection();
 }
 
-// 타일 선택 함수
 function selectTile(position) {
     selectedTile = position;
     const tile = document.getElementById(position);
-    if (tile) {
-        tile.classList.add('selected');
-    }
+    if (tile) tile.classList.add('selected');
 }
 
-// 선택 해제 함수 (문제 해결의 핵심)
 function clearSelection() {
     if (selectedTile) {
         const tile = document.getElementById(selectedTile);
-        if (tile) {
-            tile.classList.remove('selected');
-        }
+        if (tile) tile.classList.remove('selected');
     }
-    selectedTile = null; // 변수 초기화 필수
+    selectedTile = null;
 }
 
-// 이동 요청 함수
 async function movePiece(gameId, from, to) {
     try {
         const response = await fetch(`${API_BASE}/${gameId}/move`, {
@@ -110,9 +117,7 @@ async function movePiece(gameId, from, to) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            // 에러 메시지 출력 (예: "자신의 턴이 아닙니다", "기물이 없습니다" 등)
-            throw new Error(errorData.message || "이동 실패");
+            throw new Error(await getErrorMessage(response));
         }
 
         const gameData = await response.json();
@@ -120,7 +125,6 @@ async function movePiece(gameId, from, to) {
     } catch (e) {
         alert(e.message);
     }
-    // finally 블록을 쓰지 않고 handleTileClick에서 clearSelection을 호출하도록 함
 }
 
 // 4. 무르기
@@ -130,13 +134,14 @@ async function undoMove() {
 
     try {
         const response = await fetch(`${API_BASE}/${gameId}/undo`, {method: 'POST'});
+
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message);
+            throw new Error(await getErrorMessage(response));
         }
+
         const gameData = await response.json();
         renderGame(gameData);
-        clearSelection(); // 무르기 후에도 상태 초기화
+        clearSelection();
     } catch (e) {
         alert(e.message);
     }
@@ -159,6 +164,36 @@ function initBoard() {
 
             boardEl.appendChild(tile);
         }
+    }
+}
+
+// 게임 참여 함수
+async function joinGame() {
+    const gameId = document.getElementById('join-game-id').value;
+    if (!gameId) {
+        alert("게임 ID를 입력해주세요.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/${gameId}/join`, {method: 'POST'});
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "게임 참여 실패");
+        }
+
+        const gameData = await response.json();
+        initBoard();
+        renderGame(gameData);
+        document.getElementById('undo-btn').disabled = false;
+        alert(`게임 ${gameData.gameId}번에 참여했습니다! 당신은 흑(Black)입니다.`);
+
+        // [수정 2] 게임 참여 시에도 폴링 시작
+        startPolling(gameData.gameId);
+
+    } catch (e) {
+        alert(e.message);
     }
 }
 
