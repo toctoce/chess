@@ -141,10 +141,7 @@ public class Board {
     }
 
     private boolean isPromotion(Position to, Piece piece) {
-        if (piece.getType() == Type.PAWN && piece.getColor().getPawnPromotionRank() == to.y()) {
-            return true;
-        }
-        return false;
+        return piece.getType() == Type.PAWN && piece.getColor().getPawnPromotionRank() == to.y();
     }
 
     private void promotion(Position to, Color color) {
