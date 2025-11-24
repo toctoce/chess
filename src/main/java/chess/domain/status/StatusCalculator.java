@@ -27,7 +27,7 @@ public class StatusCalculator {
 
     public GameStatus calculateNextStatus(Game game) {
         if (checkmateDetector.isCheckmate(game)) {
-            Color nextTurn = game.getCurrentTurn().opposite();
+            Color nextTurn = game.getCurrentTurn();
             if (nextTurn == Color.WHITE) {
                 return GameStatus.CHECKMATE_BLACK_WIN;
             }
