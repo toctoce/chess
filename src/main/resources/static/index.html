@@ -9,25 +9,38 @@
 <div class="container">
     <h1>♟️ Java Chess Game</h1>
 
-    <div class="controls">
-        <button id="start-btn" onclick="startGame()">게임 생성</button>
-
-        <input type="text" id="join-game-id" placeholder="참여할 게임 ID" style="width: 100px;">
-        <button id="join-btn" onclick="joinGame()">게임 참여</button>
-
-        <button id="undo-btn" onclick="undoMove()" disabled>무르기</button>
-
-        <div style="margin-top: 10px;">
-            <span id="game-status">상태: 준비</span> |
-            <span id="current-turn">턴: -</span>
+    <div id="start-screen">
+        <div class="menu-box">
+            <h3>새 게임 만들기</h3>
+            <button id="start-btn" onclick="startGame()">방 만들기</button>
+        </div>
+        <div class="divider">OR</div>
+        <div class="menu-box">
+            <h3>게임 참여하기</h3>
+            <input type="text" id="join-game-id" placeholder="참여할 방 ID">
+            <button id="join-btn" onclick="joinGame()">참여하기</button>
         </div>
     </div>
 
-    <div id="chess-board" class="board">
+    <div id="game-screen" class="hidden">
+        <div class="game-info">
+            <div class="info-item">
+                <span class="label">방 ID:</span>
+                <span id="display-game-id" class="value">-</span>
+            </div>
+            <div class="info-item">
+                <span class="label">현재 턴:</span>
+                <div id="current-turn-box" class="turn-box"></div>
+            </div>
+            <button id="undo-btn" onclick="undoMove()">무르기</button>
+        </div>
+
+        <div id="chess-board" class="board"></div>
+
+        <div id="game-status" class="status-message">상태: 준비</div>
     </div>
 
-    <input type="hidden" id="game-id">
-</div>
+    <input type="hidden" id="my-role"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>

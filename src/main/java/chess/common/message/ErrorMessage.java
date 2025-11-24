@@ -11,7 +11,7 @@ public enum ErrorMessage {
     PIECE_INVALID_CREATION_ARGUMENTS("Piece 생성 인자는 null일 수 없습니다."),
     PIECE_NOT_FOUND("기물이 존재하지 않습니다."),
 
-    RULE_WRONG_TURN_PIECE("자신의 턴에 맞는 기물만 움직일 수 있습니다."),
+    RULE_WRONG_TURN_PIECE("자신의 기물만 움직일 수 있습니다."),
     RULE_SAME_POSITION_MOVE("제자리로 이동할 수 없습니다."),
     RULE_FRIENDLY_FIRE("아군 기물이 있는 위치로 이동할 수 없습니다."),
     RULE_INVALID_PIECE_MOVE("해당 기물의 이동 규칙에 어긋납니다."),

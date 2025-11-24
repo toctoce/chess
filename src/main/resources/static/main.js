@@ -1,6 +1,6 @@
 const API_BASE = "/games";
 let selectedTile = null;
-let stompClient = null; // 웹소켓 클라이언트
+let stompClient = null;
 
 const PIECE_MAP = {
     'K': '♔', 'Q': '♕', 'R': '♖', 'B': '♗', 'N': '♘', 'P': '♙',
@@ -17,26 +17,25 @@ async function getErrorMessage(response) {
     }
 }
 
-// 1. 게임 시작
+// 1. 게임 시작 (White)
 async function startGame() {
     try {
         const response = await fetch(API_BASE, {method: 'POST'});
         if (!response.ok) throw new Error(await getErrorMessage(response));
 
         const gameData = await response.json();
-        initBoard();
-        renderGame(gameData);
-        document.getElementById('undo-btn').disabled = false;
 
-        // [변경] 폴링 대신 웹소켓 연결
+        // White 설정
+        document.getElementById('my-role').value = 'WHITE';
+        setupGameScreen(gameData, false); // false = 뒤집지 않음
+
         connectWebSocket(gameData.gameId);
-
     } catch (e) {
         alert(e.message);
     }
 }
 
-// 2. 게임 참여
+// 2. 게임 참여 (Black)
 async function joinGame() {
     const gameId = document.getElementById('join-game-id').value;
     if (!gameId) return alert("게임 ID를 입력해주세요.");
@@ -46,46 +45,62 @@ async function joinGame() {
         if (!response.ok) throw new Error(await getErrorMessage(response));
 
         const gameData = await response.json();
-        initBoard();
-        renderGame(gameData);
-        document.getElementById('undo-btn').disabled = false;
-        alert(`게임 ${gameData.gameId}번에 참여했습니다!`);
 
-        // [변경] 폴링 대신 웹소켓 연결
+        // Black 설정
+        document.getElementById('my-role').value = 'BLACK';
+        setupGameScreen(gameData, true); // true = 보드 뒤집기!
+
         connectWebSocket(gameData.gameId);
-
+        alert(`게임 ${gameData.gameId}번에 참여했습니다! 당신은 흑입니다.`);
     } catch (e) {
         alert(e.message);
     }
 }
 
-// [신규] 웹소켓 연결 및 구독 함수
-function connectWebSocket(gameId) {
-    if (stompClient && stompClient.connected) {
-        return; // 이미 연결됨
-    }
+// [신규] 게임 화면 세팅 및 전환
+function setupGameScreen(gameData, isFlipped) {
+    // 화면 전환
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('game-screen').classList.remove('hidden');
 
-    const socket = new SockJS('/ws-chess'); // WebSocketConfig에서 설정한 엔드포인트
+    // 보드 초기화
+    initBoard(isFlipped);
+    renderGame(gameData);
+}
+
+// 3. 웹소켓 연결
+function connectWebSocket(gameId) {
+    if (stompClient && stompClient.connected) return;
+
+    const socket = new SockJS('/ws-chess');
     stompClient = Stomp.over(socket);
+    // stompClient.debug = null; // 로그 끄기
 
     stompClient.connect({}, function (frame) {
-        console.log('Connected: ' + frame);
-
-        // 서버가 /topic/games/{gameId} 로 메시지를 보내면 여기서 받음
         stompClient.subscribe(`/topic/games/${gameId}`, function (message) {
             const gameData = JSON.parse(message.body);
-            renderGame(gameData); // 받은 데이터로 화면 즉시 갱신
+            renderGame(gameData);
         });
     }, function (error) {
         console.error("WebSocket Error:", error);
     });
 }
 
-// 3. 화면 렌더링
+// 4. 화면 렌더링 (게임 정보 업데이트)
 function renderGame(data) {
-    document.getElementById('game-id').value = data.gameId;
+    // 게임 정보 업데이트
+    document.getElementById('display-game-id').innerText = data.gameId;
     document.getElementById('game-status').innerText = `상태: ${data.status}`;
-    document.getElementById('current-turn').innerText = `턴: ${data.currentTurn}`;
+
+    const turnBox = document.getElementById('current-turn-box');
+    turnBox.className = 'turn-box'; // 기본 클래스로 리셋
+
+    if (data.currentTurn === 'WHITE') {
+        turnBox.classList.add('white');
+    } else {
+        turnBox.classList.add('black');
+    }
+    // 턴 색상에 따라 텍스트 색상 변경 (시각적 효과)
 
     const boardMap = data.board;
     document.querySelectorAll('.tile').forEach(tile => tile.innerText = '');
@@ -96,12 +111,13 @@ function renderGame(data) {
     }
 }
 
-// 4. 타일 클릭 & 이동
+// 5. 타일 클릭 핸들러
 async function handleTileClick(position) {
-    const gameId = document.getElementById('game-id').value;
-    if (!gameId) return alert("게임을 시작하세요.");
-
     const tile = document.getElementById(position);
+
+    // 내 턴이 아니거나, 내 기물이 아니면 클릭 막기 (UX 개선)
+    // (엄격한 검증은 서버가 하지만, 프론트에서도 막아두면 좋음)
+    // 여기서는 간단히 선택 로직만 수행
 
     if (!selectedTile) {
         if (tile.innerText === '') return;
@@ -114,6 +130,8 @@ async function handleTileClick(position) {
         return;
     }
 
+    // 이동 요청
+    const gameId = document.getElementById('display-game-id').innerText;
     await movePiece(gameId, selectedTile, position);
     clearSelection();
 }
@@ -139,19 +157,13 @@ async function movePiece(gameId, from, to) {
         });
 
         if (!response.ok) throw new Error(await getErrorMessage(response));
-
-        // [중요] 여기서 renderGame을 호출할 필요가 없음.
-        // 서버가 웹소켓으로 보낸 메시지를 받아서 renderGame이 자동 호출될 것이기 때문.
-        // 하지만 네트워크 딜레이 등으로 어색할 수 있으니 놔둬도 무방함.
-
     } catch (e) {
         alert(e.message);
     }
 }
 
-// 5. 무르기
 async function undoMove() {
-    const gameId = document.getElementById('game-id').value;
+    const gameId = document.getElementById('display-game-id').innerText;
     if (!gameId) return;
 
     try {
@@ -163,15 +175,25 @@ async function undoMove() {
     }
 }
 
-function initBoard() {
+// 6. 보드 생성 (뒤집기 지원)
+function initBoard(isFlipped) {
     const boardEl = document.getElementById('chess-board');
     boardEl.innerHTML = '';
+
+    // 보드 자체 뒤집기 (CSS transform 사용)
+    if (isFlipped) {
+        boardEl.classList.add('flipped');
+    } else {
+        boardEl.classList.remove('flipped');
+    }
+
     const files = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
     for (let y = 7; y >= 0; y--) {
         for (let x = 0; x < 8; x++) {
             const tile = document.createElement('div');
             const position = `${files[x]}${y + 1}`;
+
             tile.id = position;
             tile.className = `tile ${(x + y) % 2 !== 0 ? 'white-tile' : 'black-tile'}`;
             tile.onclick = () => handleTileClick(position);
@@ -179,5 +201,3 @@ function initBoard() {
         }
     }
 }
-
-initBoard();

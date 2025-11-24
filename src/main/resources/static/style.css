@@ -11,10 +11,34 @@ body {
 
 .container {
     text-align: center;
+    width: 100%;
+    max-width: 600px;
 }
 
-.controls {
-    margin-bottom: 20px;
+/* 화면 전환 유틸 */
+.hidden {
+    display: none !important;
+}
+
+/* 시작 화면 스타일 */
+.menu-box {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 10px 0;
+}
+
+.divider {
+    margin: 10px 0;
+    font-weight: bold;
+    color: #95a5a6;
+}
+
+input[type="text"] {
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    width: 150px;
 }
 
 button {
@@ -26,11 +50,48 @@ button {
     color: white;
     border-radius: 5px;
     margin: 0 5px;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background-color: #d35400;
 }
 
 button:disabled {
     background-color: #95a5a6;
     cursor: not-allowed;
+}
+
+/* 게임 정보 헤더 */
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #34495e;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    font-size: 12px;
+    color: #bdc3c7;
+}
+
+.value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #f1c40f;
+}
+
+.status-message {
+    margin-top: 10px;
+    font-size: 18px;
 }
 
 /* 체스판 그리드 */
@@ -40,6 +101,13 @@ button:disabled {
     grid-template-rows: repeat(8, 60px);
     border: 5px solid #34495e;
     margin: 0 auto;
+    width: 480px; /* 8 * 60 */
+    height: 480px;
+}
+
+/* ⬛️ 보드 뒤집기 (Black 플레이어용) */
+.board.flipped {
+    transform: rotate(180deg);
 }
 
 .tile {
@@ -50,10 +118,13 @@ button:disabled {
     align-items: center;
     font-size: 40px;
     cursor: pointer;
-    user-select: none; /* 드래그 방지 */
+    user-select: none;
 }
 
-/* 체스판 색상 패턴 */
+.board.flipped .tile {
+    transform: rotate(180deg);
+}
+
 .white-tile {
     background-color: #f0d9b5;
     color: black;
@@ -64,7 +135,29 @@ button:disabled {
     color: black;
 }
 
-/* 선택된 타일 강조 */
 .selected {
     background-color: #f1c40f !important;
+}
+
+.turn-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    border: 3px solid #bdc3c7; /* 기본 테두리 회색 */
+    background-color: transparent;
+    transition: all 0.3s ease;
+    margin-top: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* White 턴일 때 스타일 */
+.turn-box.white {
+    background-color: #fff;
+    border-color: #000;
+}
+
+/* Black 턴일 때 스타일 */
+.turn-box.black {
+    background-color: #000;
+    border-color: #fff;
 }
