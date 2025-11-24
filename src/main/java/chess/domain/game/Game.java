@@ -1,6 +1,7 @@
 package chess.domain.game;
 
 import static chess.common.message.ErrorMessage.GAME_ALREADY_FINISHED;
+import static chess.common.message.ErrorMessage.PLAYER_CAN_NOT_UNDO;
 import static chess.common.message.ErrorMessage.PLAYER_INVALID_TURN;
 
 import chess.common.exception.ChessException;
@@ -98,12 +99,27 @@ public class Game {
         }
     }
 
-    public void undo() {
+    public void undo(Player player) {
+        validateUndoPermission(player);
+
         BoardSnapshot previousBoardSnapshot = history.undoHistory(board, currentTurn);
 
         board.restore(previousBoardSnapshot);
         this.currentTurn = previousBoardSnapshot.turn();
         this.status = GameStatus.ONGOING;
+    }
+
+    private void validateUndoPermission(Player player) {
+        if (currentTurn == Color.WHITE) {
+            if (blackPlayer == null || !blackPlayer.equals(player)) {
+                throw new ChessException(PLAYER_CAN_NOT_UNDO.getMessage());
+            }
+        }
+        if (currentTurn == Color.BLACK) {
+            if (whitePlayer == null || !whitePlayer.equals(player)) {
+                throw new ChessException(PLAYER_CAN_NOT_UNDO.getMessage());
+            }
+        }
     }
 
     private void switchTurn() {

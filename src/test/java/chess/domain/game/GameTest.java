@@ -83,8 +83,11 @@ class GameTest {
     void undoRestoresState() {
         BoardSnapshot snapshot = new BoardSnapshot(new HashMap<>(), Color.WHITE, null);
         when(history.undoHistory(board, Color.WHITE)).thenReturn(snapshot);
-
-        game.undo();
+        Player player1 = new Player("1");
+        Player player2 = new Player("2");
+        game.join(player1);
+        game.join(player2);
+        game.undo(player2);
 
         verify(board).restore(any());
         assertThat(game.getCurrentTurn()).isEqualTo(Color.WHITE);
@@ -97,7 +100,13 @@ class GameTest {
         when(history.undoHistory(any(), any()))
                 .thenThrow(new EmptyHistoryException(NO_HISTORY.getMessage()));
 
-        assertThatThrownBy(() -> game.undo())
+        Player player1 = new Player("1");
+        Player player2 = new Player("2");
+
+        game.join(player1);
+        game.join(player2);
+
+        assertThatThrownBy(() -> game.undo(player2))
                 .isInstanceOf(EmptyHistoryException.class);
     }
 }

@@ -60,8 +60,8 @@ public class ChessController {
     }
 
     @PostMapping("/{id}/undo")
-    public ResponseEntity<ChessGameResponseDto> undo(@PathVariable Long id) {
-        ChessGameResponseDto response = gameService.undo(id);
+    public ResponseEntity<ChessGameResponseDto> undo(@PathVariable Long id, HttpSession session) {
+        ChessGameResponseDto response = gameService.undo(id, session.getId());
 
         messagingTemplate.convertAndSend("/topic/games/" + id, response);
 

@@ -65,9 +65,10 @@ public class GameService {
         return ChessGameResponseDto.from(game);
     }
 
-    public ChessGameResponseDto undo(Long gameId) {
+    public ChessGameResponseDto undo(Long gameId, String playerId) {
         Game game = findGameById(gameId);
-        game.undo();
+
+        game.undo(new Player(playerId));
 
         gameRepository.save(game);
         return ChessGameResponseDto.from(game);

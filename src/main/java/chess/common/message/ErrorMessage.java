@@ -34,7 +34,8 @@ public enum ErrorMessage {
 
     REPOSITORY_ID_INJECTION_FAILED("Game ID 주입 실패"),
 
-    PLAYER_INVALID_TURN("당신의 턴이 아닙니다: %s턴", true);
+    PLAYER_INVALID_TURN("당신의 턴이 아닙니다: %s턴", true),
+    PLAYER_CAN_NOT_UNDO("자신의 수만 무를 수 있습니다.");
 
     private final String message;
     private final boolean isFormatted;
