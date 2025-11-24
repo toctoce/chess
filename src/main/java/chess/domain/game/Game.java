@@ -1,6 +1,7 @@
 package chess.domain.game;
 
 import static chess.common.message.ErrorMessage.GAME_ALREADY_FINISHED;
+import static chess.common.message.ErrorMessage.PLAYER_INVALID_TURN;
 
 import chess.common.exception.ChessException;
 import chess.common.exception.GameFinishedException;
@@ -89,14 +90,11 @@ public class Game {
     }
 
     private void validatePlayerTurn(Player player) {
-        if (currentTurn == Color.WHITE) {
-            if (whitePlayer == null || !whitePlayer.equals(player)) {
-                throw new ChessException("당신의 턴이 아닙니다 (WHITE 턴).");
-            }
-        } else {
-            if (blackPlayer == null || !blackPlayer.equals(player)) {
-                throw new ChessException("당신의 턴이 아닙니다 (BLACK 턴).");
-            }
+        if (currentTurn == Color.WHITE && (whitePlayer == null || !whitePlayer.equals(player))) {
+            throw new ChessException(PLAYER_INVALID_TURN.getMessage(String.valueOf(Color.WHITE)));
+        }
+        if (currentTurn == Color.BLACK && (blackPlayer == null || !blackPlayer.equals(player))) {
+            throw new ChessException(PLAYER_INVALID_TURN.getMessage(String.valueOf(Color.BLACK)));
         }
     }
 

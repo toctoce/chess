@@ -32,7 +32,10 @@ public enum ErrorMessage {
     CASTLING_PATH_BLOCKED("캐슬링 경로에 기물이 있어 이동할 수 없습니다."),
     CASTLING_PATH_ATTACKED("이동 경로가 공격받고 있어 캐슬링할 수 없습니다."),
 
-    REPOSITORY_ID_INJECTION_FAILED("Game ID 주입 실패");
+    REPOSITORY_ID_INJECTION_FAILED("Game ID 주입 실패"),
+
+    PLAYER_INVALID_TURN("당신의 턴이 아닙니다: %s턴", true);
+
     private final String message;
     private final boolean isFormatted;
 
