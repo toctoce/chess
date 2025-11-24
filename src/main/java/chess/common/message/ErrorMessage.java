@@ -29,8 +29,9 @@ public enum ErrorMessage {
     CASTLING_ROOK_NOT_FOUND("캐슬링할 수 있는 룩이 없습니다."),
     CASTLING_ROOK_MOVED("이미 움직인 룩과 캐슬링할 수 없습니다."),
     CASTLING_PATH_BLOCKED("캐슬링 경로에 기물이 있어 이동할 수 없습니다."),
-    CASTLING_PATH_ATTACKED("이동 경로가 공격받고 있어 캐슬링할 수 없습니다.");
+    CASTLING_PATH_ATTACKED("이동 경로가 공격받고 있어 캐슬링할 수 없습니다."),
 
+    REPOSITORY_ID_INJECTION_FAILED("Game ID 주입 실패");
     private final String message;
     private final boolean isFormatted;
 
