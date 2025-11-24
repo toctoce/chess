@@ -22,7 +22,14 @@ public enum ErrorMessage {
     GAME_ALREADY_FINISHED("게임이 이미 종료되었습니다: %s", true),
     STATE_INVALID_WINNER_COLOR("승리자의 색상이 WHITE 또는 BLACK이 아닙니다."),
 
-    NO_HISTORY("기록이 없습니다.");
+    NO_HISTORY("기록이 없습니다."),
+
+    CASTLING_KING_MOVED("이미 움직인 킹은 캐슬링할 수 없습니다."),
+    CASTLING_IN_CHECK("현재 체크 상태이므로 캐슬링할 수 없습니다."),
+    CASTLING_ROOK_NOT_FOUND("캐슬링할 수 있는 룩이 없습니다."),
+    CASTLING_ROOK_MOVED("이미 움직인 룩과 캐슬링할 수 없습니다."),
+    CASTLING_PATH_BLOCKED("캐슬링 경로에 기물이 있어 이동할 수 없습니다."),
+    CASTLING_PATH_ATTACKED("이동 경로가 공격받고 있어 캐슬링할 수 없습니다.");
 
     private final String message;
     private final boolean isFormatted;

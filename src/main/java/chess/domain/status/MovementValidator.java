@@ -1,5 +1,11 @@
 package chess.domain.status;
 
+import static chess.common.message.ErrorMessage.CASTLING_IN_CHECK;
+import static chess.common.message.ErrorMessage.CASTLING_KING_MOVED;
+import static chess.common.message.ErrorMessage.CASTLING_PATH_ATTACKED;
+import static chess.common.message.ErrorMessage.CASTLING_PATH_BLOCKED;
+import static chess.common.message.ErrorMessage.CASTLING_ROOK_MOVED;
+import static chess.common.message.ErrorMessage.CASTLING_ROOK_NOT_FOUND;
 import static chess.common.message.ErrorMessage.PIECE_NOT_FOUND;
 import static chess.common.message.ErrorMessage.RULE_FRIENDLY_FIRE;
 import static chess.common.message.ErrorMessage.RULE_INVALID_PIECE_MOVE;
@@ -26,7 +32,6 @@ public class MovementValidator {
         this.checkDetector = checkDetector;
     }
 
-    // todo : 앙파상, 캐슬링 규칙 적용
     public void validate(Position from, Position to, Board board, Color currentTurn) {
         Piece piece = board.getPiece(from);
 
@@ -72,11 +77,11 @@ public class MovementValidator {
 
     private void validateCastling(Position from, Position to, Board board, Piece king) {
         if (king.isMoved()) {
-            throw new IllegalMoveException("이미 움직인 킹은 캐슬링할 수 없습니다.");
+            throw new IllegalMoveException(CASTLING_KING_MOVED.getMessage());
         }
 
         if (checkDetector.isCheck(board, king.getColor())) {
-            throw new IllegalMoveException("현재 체크 상태이므로 캐슬링할 수 없습니다.");
+            throw new IllegalMoveException(CASTLING_IN_CHECK.getMessage());
         }
 
         int direction;
@@ -91,22 +96,22 @@ public class MovementValidator {
 
         Piece rook = board.getPiece(rookPosition);
         if (rook == null || rook.getType() != Type.ROOK || rook.getColor() != king.getColor()) {
-            throw new IllegalMoveException("캐슬링할 수 있는 룩이 없습니다.");
+            throw new IllegalMoveException(CASTLING_ROOK_NOT_FOUND.getMessage());
         }
 
         if (rook.isMoved()) {
-            throw new IllegalMoveException("이미 움직인 룩과 캐슬링할 수 없습니다.");
+            throw new IllegalMoveException(CASTLING_ROOK_MOVED.getMessage());
         }
 
         if (board.hasObstacleInPath(from, rookPosition)) {
-            throw new IllegalMoveException("캐슬링 경로에 기물이 있어 이동할 수 없습니다.");
+            throw new IllegalMoveException(CASTLING_PATH_BLOCKED.getMessage());
         }
 
         Position nextSquare = Position.of(from.x() + direction, from.y());
         Color opponentColor = king.getColor().opposite();
 
         if (checkDetector.isSquareAttacked(board, nextSquare, opponentColor)) {
-            throw new IllegalMoveException("이동 경로가 공격받고 있어 캐슬링할 수 없습니다.");
+            throw new IllegalMoveException(CASTLING_PATH_ATTACKED.getMessage());
         }
 
         if (checkDetector.isSquareAttacked(board, to, opponentColor)) {
