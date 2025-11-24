@@ -5,6 +5,7 @@ import chess.dto.MoveRequestDto;
 import chess.service.GameService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,9 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChessController {
 
     private final GameService gameService;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public ChessController(GameService gameService) {
+    public ChessController(GameService gameService, SimpMessagingTemplate messagingTemplate) {
         this.gameService = gameService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @PostMapping
@@ -31,6 +34,9 @@ public class ChessController {
     @PostMapping("/{id}/join")
     public ResponseEntity<ChessGameResponseDto> joinGame(@PathVariable Long id, HttpSession session) {
         ChessGameResponseDto response = gameService.joinGame(id, session.getId());
+
+        messagingTemplate.convertAndSend("/topic/games/" + id, response);
+
         return ResponseEntity.ok(response);
     }
 
@@ -47,12 +53,18 @@ public class ChessController {
             HttpSession session
     ) {
         ChessGameResponseDto response = gameService.move(id, moveRequest, session.getId());
+
+        messagingTemplate.convertAndSend("/topic/games/" + id, response);
+
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{id}/undo")
     public ResponseEntity<ChessGameResponseDto> undo(@PathVariable Long id) {
         ChessGameResponseDto response = gameService.undo(id);
+
+        messagingTemplate.convertAndSend("/topic/games/" + id, response);
+
         return ResponseEntity.ok(response);
     }
 }
