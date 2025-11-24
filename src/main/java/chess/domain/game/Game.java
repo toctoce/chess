@@ -55,7 +55,7 @@ public class Game {
 
         history.saveHistory(board, currentTurn);
 
-        board.movePiece(from, to);
+        board.move(from, to);
 
         switchTurn();
 
