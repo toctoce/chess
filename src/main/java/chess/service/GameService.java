@@ -5,6 +5,7 @@ import chess.common.message.ErrorMessage;
 import chess.domain.board.Board;
 import chess.domain.board.Position;
 import chess.domain.game.Game;
+import chess.domain.game.Player;
 import chess.domain.status.MovementValidator;
 import chess.domain.status.StatusCalculator;
 import chess.dto.ChessGameResponseDto;
@@ -27,14 +28,23 @@ public class GameService {
         this.statusCalculator = statusCalculator;
     }
 
-    public ChessGameResponseDto startGame() {
+    public ChessGameResponseDto startGame(String playerId) {
         Board board = new Board();
         board.initialize();
 
         Game game = new Game(board);
+        game.join(new Player(playerId));
         Game savedGame = gameRepository.save(game);
 
         return ChessGameResponseDto.from(savedGame);
+    }
+
+    public ChessGameResponseDto joinGame(Long gameId, String playerId) {
+        Game game = findGameById(gameId);
+        game.join(new Player(playerId));
+
+        gameRepository.save(game);
+        return ChessGameResponseDto.from(game);
     }
 
     public ChessGameResponseDto load(Long gameId) {
@@ -42,13 +52,14 @@ public class GameService {
         return ChessGameResponseDto.from(game);
     }
 
-    public ChessGameResponseDto move(Long gameId, MoveRequestDto moveRequest) {
+    public ChessGameResponseDto move(Long gameId, MoveRequestDto moveRequest, String playerId) {
         Game game = findGameById(gameId);
 
         Position from = Position.from(moveRequest.from());
         Position to = Position.from(moveRequest.to());
+        Player player = new Player(playerId);
 
-        game.move(from, to, movementValidator, statusCalculator);
+        game.move(player, from, to, movementValidator, statusCalculator);
 
         gameRepository.save(game);
         return ChessGameResponseDto.from(game);

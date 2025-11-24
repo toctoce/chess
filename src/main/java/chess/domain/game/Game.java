@@ -2,6 +2,7 @@ package chess.domain.game;
 
 import static chess.common.message.ErrorMessage.GAME_ALREADY_FINISHED;
 
+import chess.common.exception.ChessException;
 import chess.common.exception.GameFinishedException;
 import chess.domain.board.Board;
 import chess.domain.board.Position;
@@ -21,6 +22,25 @@ public class Game {
     private Color currentTurn;
     private GameStatus status;
 
+    private Player whitePlayer;
+    private Player blackPlayer;
+
+    public void join(Player player) {
+        if (whitePlayer == null) {
+            this.whitePlayer = player;
+            return;
+        }
+        if (player.equals(whitePlayer)) {
+            throw new ChessException("이미 게임에 참여 중입니다.");
+        }
+
+        if (blackPlayer == null) {
+            this.blackPlayer = player;
+            return;
+        }
+        throw new ChessException("게임 인원이 꽉 찼습니다.");
+    }
+
     public Game(Board board) {
         this.board = board;
         this.currentTurn = Color.WHITE;
@@ -39,6 +59,7 @@ public class Game {
     }
 
     public void move(
+            Player player,
             Position from,
             Position to,
             MovementValidator movementValidator,
@@ -47,6 +68,8 @@ public class Game {
         if (isFinished()) {
             throw new GameFinishedException(GAME_ALREADY_FINISHED.getMessage(status.getDescription()));
         }
+
+        validatePlayerTurn(player);
 
         movementValidator.validate(from, to, board, currentTurn);
 
@@ -63,6 +86,18 @@ public class Game {
         history.updateHistory(board, currentTurn, isFiftyMoveReset);
 
         this.status = statusCalculator.calculateNextStatus(this);
+    }
+
+    private void validatePlayerTurn(Player player) {
+        if (currentTurn == Color.WHITE) {
+            if (whitePlayer == null || !whitePlayer.equals(player)) {
+                throw new ChessException("당신의 턴이 아닙니다 (WHITE 턴).");
+            }
+        } else {
+            if (blackPlayer == null || !blackPlayer.equals(player)) {
+                throw new ChessException("당신의 턴이 아닙니다 (BLACK 턴).");
+            }
+        }
     }
 
     public void undo() {

@@ -48,11 +48,13 @@ class GameTest {
     void moveExecutesInCorrectOrder() {
         Position from = Position.from("A1");
         Position to = Position.from("A2");
+        Player player = new Player("1");
+        game.join(player);
 
         when(board.getPiece(from)).thenReturn(new Rook(Color.WHITE));
         when(calculator.calculateNextStatus(game)).thenReturn(GameStatus.ONGOING);
 
-        game.move(from, to, validator, calculator);
+        game.move(player, from, to, validator, calculator);
 
         InOrder inOrder = inOrder(validator, history, board, calculator);
 
@@ -69,8 +71,10 @@ class GameTest {
     @DisplayName("이미 종료된 게임에서 move를 시도하면 예외를 던진다")
     void moveThrowExceptionIfFinished() {
         game = new Game(1L, board, Color.WHITE, GameStatus.CHECKMATE_WHITE_WIN, history);
+        Player player = new Player("1");
+        game.join(player);
 
-        assertThatThrownBy(() -> game.move(Position.from("A1"), Position.from("A2"), validator, calculator))
+        assertThatThrownBy(() -> game.move(player, Position.from("A1"), Position.from("A2"), validator, calculator))
                 .isInstanceOf(GameFinishedException.class);
     }
 
