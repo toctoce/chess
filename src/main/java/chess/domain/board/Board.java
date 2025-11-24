@@ -88,9 +88,11 @@ public class Board {
         }
 
         movePiece(from, to);
+        updateAfterMove(from, to, piece);
+    }
 
+    private void updateAfterMove(Position from, Position to, Piece piece) {
         updateEnPassantTarget(piece, from, to);
-
         if (isPromotion(to, piece)) {
             promotion(to, piece.getColor());
         }

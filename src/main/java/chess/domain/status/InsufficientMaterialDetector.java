@@ -14,25 +14,32 @@ public class InsufficientMaterialDetector {
         List<Piece> whitePieces = board.getPiecesByTeam(Color.WHITE).values().stream().toList();
         List<Piece> blackPieces = board.getPiecesByTeam(Color.BLACK).values().stream().toList();
 
-        if (hasOnlyKing(whitePieces) && hasOnlyKing(blackPieces)) {
-            return true;
-        }
-
-        if ((hasOnlyKing(whitePieces) && hasKingAndOneMinorPiece(blackPieces)) ||
-                (hasOnlyKing(blackPieces) && hasKingAndOneMinorPiece(whitePieces))) {
-            return true;
-        }
-
-        if (hasKingAndOneMinorPiece(whitePieces) && hasKingAndOneMinorPiece(blackPieces)) {
-            return true;
-        }
-
-        if ((hasOnlyKing(whitePieces) && hasKingAndTwoKnights(blackPieces)) ||
-                (hasOnlyKing(blackPieces) && hasKingAndTwoKnights(whitePieces))) {
+        if (kingVsKing(whitePieces, blackPieces) ||
+                kingVsKingAndMinor(whitePieces, blackPieces) ||
+                kingAndMinorVsKingAndMinor(whitePieces, blackPieces) ||
+                kingVsKingAndTwoKnights(whitePieces, blackPieces)) {
             return true;
         }
 
         return false;
+    }
+
+    private boolean kingVsKingAndTwoKnights(List<Piece> whitePieces, List<Piece> blackPieces) {
+        return (hasOnlyKing(whitePieces) && hasKingAndTwoKnights(blackPieces)) ||
+                (hasOnlyKing(blackPieces) && hasKingAndTwoKnights(whitePieces));
+    }
+
+    private boolean kingAndMinorVsKingAndMinor(List<Piece> whitePieces, List<Piece> blackPieces) {
+        return hasKingAndOneMinorPiece(whitePieces) && hasKingAndOneMinorPiece(blackPieces);
+    }
+
+    private boolean kingVsKingAndMinor(List<Piece> whitePieces, List<Piece> blackPieces) {
+        return (hasOnlyKing(whitePieces) && hasKingAndOneMinorPiece(blackPieces)) ||
+                (hasOnlyKing(blackPieces) && hasKingAndOneMinorPiece(whitePieces));
+    }
+
+    private boolean kingVsKing(List<Piece> whitePieces, List<Piece> blackPieces) {
+        return hasOnlyKing(whitePieces) && hasOnlyKing(blackPieces);
     }
 
     private boolean hasOnlyKing(List<Piece> pieces) {
