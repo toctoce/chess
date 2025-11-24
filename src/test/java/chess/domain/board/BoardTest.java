@@ -454,4 +454,44 @@ class BoardTest {
             assertThat(whiteRook.isMoveValid(rookPosition, Position.from("B6"), board)).isFalse();
         }
     }
+
+    @Nested
+    @DisplayName("폰 승진 테스트")
+    class PromotionTest {
+
+        @Test
+        @DisplayName("화이트 폰이 랭크 8에 도달하면 퀸으로 자동 승진한다")
+        void whitePawnPromotesToQueenByDefault() {
+            Position from = Position.from("A7");
+            Position to = Position.from("A8");
+            Pawn whitePawn = new Pawn(Color.WHITE);
+
+            Map<Position, Piece> pieces = new HashMap<>();
+            pieces.put(from, whitePawn);
+            Board board = new Board(pieces);
+
+            board.move(from, to);
+
+            Piece promotedPiece = board.getPiece(to);
+            assertThat(promotedPiece).isInstanceOf(Queen.class);
+            assertThat(promotedPiece.getColor()).isEqualTo(Color.WHITE);
+        }
+
+        @Test
+        @DisplayName("승진 랭크가 아닌 곳으로 이동하면 승진하지 않는다")
+        void pawnDoesNotPromoteIfNotLastRank() {
+            Position pawnStart = Position.from("A2");
+            Position pawnEnd = Position.from("A3");
+            Pawn whitePawn = new Pawn(Color.WHITE);
+
+            Map<Position, Piece> pieces = new HashMap<>();
+            pieces.put(pawnStart, whitePawn);
+            Board board = new Board(pieces);
+
+            board.move(pawnStart, pawnEnd);
+
+            assertThat(board.getPiece(pawnEnd)).isInstanceOf(Pawn.class);
+        }
+
+    }
 }

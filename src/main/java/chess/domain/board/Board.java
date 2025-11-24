@@ -9,6 +9,7 @@ import chess.domain.factory.impls.WhitePieceFactory;
 import chess.domain.piece.Color;
 import chess.domain.piece.Piece;
 import chess.domain.piece.Type;
+import chess.domain.piece.impls.Queen;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -88,6 +89,10 @@ public class Board {
         movePiece(from, to);
 
         updateEnPassantTarget(piece, from, to);
+
+        if (isPromotion(to, piece)) {
+            promotion(to, piece.getColor());
+        }
     }
 
     private boolean isCastling(Position from, Position to, Piece piece) {
@@ -130,6 +135,18 @@ public class Board {
             return;
         }
         this.enPassantTarget = null;
+    }
+
+    private boolean isPromotion(Position to, Piece piece) {
+        if (piece.getType() == Type.PAWN && piece.getColor().getPawnPromotionRank() == to.y()) {
+            return true;
+        }
+        return false;
+    }
+
+    private void promotion(Position to, Color color) {
+        removePiece(to);
+        pieces.put(to, new Queen(color, true));
     }
 
     public Board movePieceVirtually(Position from, Position to) {

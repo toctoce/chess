@@ -11,7 +11,7 @@ public class Queen extends Piece {
         super(color, Type.QUEEN, new QueenMovement());
     }
 
-    private Queen(Color color, boolean isMoved) {
+    public Queen(Color color, boolean isMoved) {
         super(color, Type.QUEEN, new QueenMovement(), isMoved);
     }
 
