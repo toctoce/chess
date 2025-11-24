@@ -6,6 +6,7 @@ import chess.common.exception.PieceNotFoundException;
 import chess.domain.factory.PieceFactory;
 import chess.domain.factory.impls.BlackPieceFactory;
 import chess.domain.factory.impls.WhitePieceFactory;
+import chess.domain.game.BoardSnapshot;
 import chess.domain.piece.Color;
 import chess.domain.piece.Piece;
 import chess.domain.piece.Type;
@@ -207,9 +208,10 @@ public class Board {
                 .orElse(null);
     }
 
-    public void restore(Map<Position, Piece> snapshot) {
+    public void restore(BoardSnapshot snapshot) {
         this.pieces.clear();
-        this.pieces.putAll(snapshot);
+        this.pieces.putAll(snapshot.pieces());
+        this.enPassantTarget = snapshot.enPassantTarget();
     }
 
     public Map<Position, Piece> getPieces() {

@@ -66,10 +66,10 @@ public class Game {
     }
 
     public void undo() {
-        BoardSnapshot previousBoard = history.undoHistory(board, currentTurn);
+        BoardSnapshot previousBoardSnapshot = history.undoHistory(board, currentTurn);
 
-        board.restore(previousBoard.pieces());
-        this.currentTurn = previousBoard.turn();
+        board.restore(previousBoardSnapshot);
+        this.currentTurn = previousBoardSnapshot.turn();
         this.status = GameStatus.ONGOING;
     }
 

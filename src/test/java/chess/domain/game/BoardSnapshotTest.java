@@ -20,7 +20,7 @@ class BoardSnapshotTest {
         Position a1 = Position.from("A1");
         originalPieces.put(a1, new Rook(Color.WHITE));
 
-        BoardSnapshot snapshot = new BoardSnapshot(originalPieces, Color.WHITE);
+        BoardSnapshot snapshot = new BoardSnapshot(originalPieces, Color.WHITE, null);
 
         originalPieces.clear();
 
@@ -37,8 +37,8 @@ class BoardSnapshotTest {
         Map<Position, Piece> map2 = new HashMap<>();
         map2.put(Position.from("A1"), new Rook(Color.WHITE));
 
-        BoardSnapshot snapshot1 = new BoardSnapshot(map1, Color.WHITE);
-        BoardSnapshot snapshot2 = new BoardSnapshot(map2, Color.WHITE);
+        BoardSnapshot snapshot1 = new BoardSnapshot(map1, Color.WHITE, null);
+        BoardSnapshot snapshot2 = new BoardSnapshot(map2, Color.WHITE, null);
 
         assertThat(snapshot1).isEqualTo(snapshot2);
         assertThat(snapshot1.hashCode()).isEqualTo(snapshot2.hashCode());

@@ -58,7 +58,7 @@ class GameTest {
 
         inOrder.verify(validator).validate(from, to, board, Color.WHITE);
         inOrder.verify(history).saveHistory(board, Color.WHITE);
-        inOrder.verify(board).movePiece(from, to);
+        inOrder.verify(board).move(from, to);
         inOrder.verify(history).updateHistory(eq(board), eq(Color.BLACK), any(Boolean.class));
         inOrder.verify(calculator).calculateNextStatus(game);
 
@@ -77,7 +77,7 @@ class GameTest {
     @Test
     @DisplayName("undo 실행 시 이전 상태를 복원하고 턴을 되돌린다")
     void undoRestoresState() {
-        BoardSnapshot snapshot = new BoardSnapshot(new HashMap<>(), Color.WHITE);
+        BoardSnapshot snapshot = new BoardSnapshot(new HashMap<>(), Color.WHITE, null);
         when(history.undoHistory(board, Color.WHITE)).thenReturn(snapshot);
 
         game.undo();
@@ -92,7 +92,7 @@ class GameTest {
     void undoThrowsExceptionIfEmpty() {
         when(history.undoHistory(any(), any()))
                 .thenThrow(new EmptyHistoryException(NO_HISTORY.getMessage()));
-        
+
         assertThatThrownBy(() -> game.undo())
                 .isInstanceOf(EmptyHistoryException.class);
     }

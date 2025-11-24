@@ -32,7 +32,7 @@ public class GameHistory {
     }
 
     public void saveHistory(Board board, Color turnColor) {
-        BoardSnapshot snapshot = new BoardSnapshot(board.getPieces(), turnColor);
+        BoardSnapshot snapshot = new BoardSnapshot(board.getPieces(), turnColor, board.getEnPassantTarget());
         boardStack.push(snapshot);
         fiftyMoveStack.push(fiftyMoveCount);
     }
@@ -43,7 +43,7 @@ public class GameHistory {
         }
         this.fiftyMoveCount = fiftyMoveStack.pop();
 
-        BoardSnapshot snapshot = new BoardSnapshot(board.getPieces(), turnColor);
+        BoardSnapshot snapshot = new BoardSnapshot(board.getPieces(), turnColor, board.getEnPassantTarget());
         decreaseRepetitionCount(snapshot);
         return boardStack.pop();
     }
@@ -69,13 +69,13 @@ public class GameHistory {
     }
 
     private void updateRepetitionCounter(Board board, Color nextTurnColor) {
-        BoardSnapshot snapshot = new BoardSnapshot(board.getPieces(), nextTurnColor);
+        BoardSnapshot snapshot = new BoardSnapshot(board.getPieces(), nextTurnColor, board.getEnPassantTarget());
         int count = repetitionCounter.getOrDefault(snapshot, 0) + 1;
         repetitionCounter.put(snapshot, count);
     }
 
     public int getRepetitionCount(Board board, Color currentTurn) {
-        BoardSnapshot snapshot = new BoardSnapshot(board.getPieces(), currentTurn);
+        BoardSnapshot snapshot = new BoardSnapshot(board.getPieces(), currentTurn, board.getEnPassantTarget());
         return repetitionCounter.getOrDefault(snapshot, 0);
     }
 
