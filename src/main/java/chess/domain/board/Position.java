@@ -30,6 +30,10 @@ public record Position(int x, int y) {
         return new Position(x, y);
     }
 
+    public String toAlgebraicNotation() {
+        return String.format("%c%c", x + 'A', y + '1');
+    }
+
     private static void validate(int x, int y) {
         if (x < 0 || x > 7 || y < 0 || y > 7) {
             throw new InvalidPositionException(POSITION_INVALID_RANGE.getMessage(String.valueOf(x), String.valueOf(y)));
