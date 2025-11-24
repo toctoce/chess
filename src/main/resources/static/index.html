@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Java Chess Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <h1>♟️ Java Chess Game</h1>
+
+    <div class="controls">
+        <button id="start-btn" onclick="startGame()">게임 시작</button>
+        <button id="undo-btn" onclick="undoMove()" disabled>무르기</button>
+        <span id="game-status">상태: 준비</span>
+        <span id="current-turn">턴: -</span>
+    </div>
+
+    <div id="chess-board" class="board">
+    </div>
+
+    <input type="hidden" id="game-id">
+</div>
+
+<script src="main.js"></script>
+</body>
+</html>
